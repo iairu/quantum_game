@@ -30,6 +30,7 @@ const UI = {
       ['#btn-hub', tr('🏝 Ostrov', '🏝 Island', '🏝 Острів'), tr('Späť na ostrov', 'Back to the island', 'Назад на острів')],
       ['#btn-map', tr('🗺 Mapa', '🗺 Map', '🗺 Мапа'), tr('Mapa (M)', 'Map (M)', 'Мапа (M)')],
       ['#btn-spinq', tr('🧪 SpinQ', '🧪 SpinQ', '🧪 SpinQ'), tr('SpinQ: voľná dielňa, bez hodnotenia (Q)', 'SpinQ: free play, no grading (Q)', 'SpinQ: вільна гра, без оцінювання (Q)')],
+      ['#btn-gemini', tr('🧫 Gemini', '🧫 Gemini', '🧫 Gemini'), tr('SpinQ Gemini: dva qubity, Bellov stav a experimenty (G)', 'SpinQ Gemini: two qubits, Bell state and experiments (G)', 'SpinQ Gemini: два кубіти, стан Белла та експерименти (G)')],
       ['#btn-codex', tr('📖 Kódex', '📖 Codex', '📖 Кодекс'), tr('Kódex symbolov (C)', 'Codex of symbols (C)', 'Кодекс символів (C)')],
       ['#btn-log', tr('📜 Denník', '📜 Journal', '📜 Щоденник'), tr('Denník rozhovorov (L)', 'Conversation journal (L)', 'Щоденник розмов (L)')],
       ['#btn-views', '👁', tr('Pohľady: ten istý stav ako obrázky — ručičky, Blochove rezy, bázy, matica ρ (V)', 'Views: the same state as pictures — hands, Bloch cuts, bases, ρ matrix (V)', 'Погляди: той самий стан у вигляді картинок — стрілки, перерізи Блоха, базиси, матриця ρ (V)')],
@@ -65,6 +66,7 @@ const UI = {
     $('#btn-hub').onclick = () => Game.backToHub();
     this.hubBtn = $('#btn-hub');
     $('#btn-spinq').onclick = () => Game.enterSpinQ();
+    $('#btn-gemini').onclick = () => Game.enterGemini();
     $('#btn-log').onclick = () => this.toggleLog();
     $('#codex .close').onclick = () => this.toggleCodex(false);
     $('#help .close').onclick = () => this.toggleHelp(false);
@@ -734,6 +736,9 @@ const UI = {
     body.appendChild(el('h3', null, tr('🧪 SpinQ: voľná dielňa', '🧪 SpinQ: free play', '🧪 SpinQ: вільна гра')));
     body.appendChild(el('p', 'muted', tr('Vyskúšaj hradlá, presety aj prúdový RF impulz na Blochovej sfére — bez hviezdičiek a bez otázok, kedykoľvek.', 'Try the gates, presets and the current RF pulse on the Bloch sphere — no stars, no questions, any time.', 'Спробуй гейти, заготовки й імпульс струму на сфері Блоха — без зірок і питань, будь-коли.')));
     body.appendChild(this.row(this.plainButton(tr('🧪 Otvoriť SpinQ', '🧪 Open SpinQ', '🧪 Відкрити SpinQ'), () => { this.toggleSettings(false); Game.enterSpinQ(); })));
+    body.appendChild(el('h3', null, tr('🧫 SpinQ Gemini: dva qubity', '🧫 SpinQ Gemini: two qubits', '🧫 SpinQ Gemini: два кубіти')));
+    body.appendChild(el('p', 'muted', tr('Dvojqubitový NMR (¹H + ³¹P): priprav Bellov stav H→CNOT, vlož oneskorenie a prehraj tri reálne experimenty z prednášky 7 — maticu hustoty ρ aj vernosť vidíš naživo.', 'Two-qubit NMR (¹H + ³¹P): prepare a Bell state H→CNOT, insert a delay and replay the three real experiments from lecture 7 — the density matrix ρ and fidelity update live.', 'Двокубітний ЯМР (¹H + ³¹P): створи стан Белла H→CNOT, встав затримку й відтвори три реальні експерименти з лекції 7 — матрицю густини ρ і вірність видно наживо.')));
+    body.appendChild(this.row(this.plainButton(tr('🧫 Otvoriť SpinQ Gemini', '🧫 Open SpinQ Gemini', '🧫 Відкрити SpinQ Gemini'), () => { this.toggleSettings(false); Game.enterGemini(); })));
     body.appendChild(el('h3', null, tr('📊 Vizualizácie', '📊 Visualizations', '📊 Візуалізації')));
     const g1 = el('div', 'grid2');
     for (const [k, label, tip] of [

@@ -21,12 +21,14 @@ const Gemini = {
     this.psi = Q2.zero();
     this.rA = [0, 0, 1]; this.rB = [0, 0, 1];
     this.seq = []; this.pulsing = 0; this.t = 0; this.tau = 2000; this.exp = null; this.showPhase = false;
+    this.auto = null;
     UI.setHud(this.title, tr('Voľná hra pre dva NMR qubity — priprav Bellov stav a skús tri experimenty z prednášky.',
       'Free play with two NMR qubits — prepare a Bell state and try the three experiments from the lecture.',
       'Вільна гра з двома ЯМР-кубітами — створи стан Белла й спробуй три експерименти з лекції.'));
     this.buildPanel();
+    this.buildDock();
   },
-  exit() { UI.panelHide(); },
+  exit() { this.auto = null; UI.dockHide(); UI.panelHide(); },
 
   // ---------- operácie na stave ----------
   apply(fn, label, exp) {
@@ -189,6 +191,57 @@ const Gemini = {
     return `<br><span class="muted">${tr('fázy amplitúd', 'amplitude phases', 'фази амплітуд')}: ${parts.join(' · ') || '—'}`
       + `<br>${tr('globálna fáza γ', 'global phase γ', 'глобальна фаза γ')} = ${Fmt.num(g * 180 / Math.PI, 0)}° ${tr('(nemerateľná)', '(unobservable)', '(невимірна)')}</span>`;
   },
+  // ---------- autoplay: riadené ukážky správnych postupov ----------
+  // kroky bežia v update() s pevnými pauzami (operácie Gemini sú okamžité, animuje sa len „pulsing“)
+  autoScripts() {
+    return [
+      { id: 'bell', name: tr('Bellov stav: H → CNOT → overenie', 'Bell state: H → CNOT → verify', 'Стан Белла: H → CNOT → перевірка'), steps: [
+        { say: tr('Štart v stave |00⟩ (obe jadrá „hore“).', 'Start in |00⟩ (both nuclei “up”).', 'Старт у |00⟩ (обидва ядра «вгору»).'), do: () => this.reset(), hold: 1.4 },
+        { say: tr('Na ¹H (A) pustíme 90°y impulz (rola Hadamarda) → A je v superpozícii.', 'A 90°y pulse on ¹H (A) (the Hadamard role) → A is in a superposition.', 'Імпульс 90°y на ¹H (A) (роль Адамара) → A у суперпозиції.'), do: () => this.gA(Gate.Ry(Math.PI / 2), '90°y·A'), hold: 1.7 },
+        { say: tr('CNOT cez J-väzbu previaže A a B → Bellov stav |Φ⁺⟩ = (|00⟩ + |11⟩)/√2.', 'CNOT via the J-coupling entangles A and B → Bell state |Φ⁺⟩ = (|00⟩ + |11⟩)/√2.', 'CNOT через J-зв’язок сплутує A і B → стан Белла |Φ⁺⟩ = (|00⟩ + |11⟩)/√2.'), do: () => this.cnot(), hold: 1.9 },
+        { say: tr('Overenie: korelátory ⟨ZZ⟩ = ⟨XX⟩ = +1, ⟨YY⟩ = −1 — podpis |Φ⁺⟩. (Fáza odhalená.)', 'Verify: correlators ⟨ZZ⟩ = ⟨XX⟩ = +1, ⟨YY⟩ = −1 — the signature of |Φ⁺⟩. (Phase revealed.)', 'Перевірка: корелятори ⟨ZZ⟩ = ⟨XX⟩ = +1, ⟨YY⟩ = −1 — підпис |Φ⁺⟩. (Фазу відкрито.)'), do: () => { if (!this.showPhase) this.togglePhase(); }, hold: 2.2 },
+      ] },
+      { id: 'evo', name: tr('Voľný vývoj medzi hradlami (exp. II)', 'Free evolution between gates (exp. II)', 'Вільна еволюція між гейтами (експ. II)'), steps: [
+        { say: tr('Štart v |00⟩.', 'Start in |00⟩.', 'Старт у |00⟩.'), do: () => this.reset(), hold: 1.3 },
+        { say: tr('90°y na ¹H (A).', 'A 90°y pulse on ¹H (A).', 'Імпульс 90°y на ¹H (A).'), do: () => this.gA(Gate.Ry(Math.PI / 2), '90°y·A'), hold: 1.5 },
+        { say: tr('CNOT → |Φ⁺⟩: rohová koherencia ρ₀₀,₁₁ je takmer reálna (zlatý bod vpravo na fázore).', 'CNOT → |Φ⁺⟩: the corner coherence ρ₀₀,₁₁ is almost real (gold dot to the right on the phasor).', 'CNOT → |Φ⁺⟩: кутова когерентність ρ₀₀,₁₁ майже дійсна (золота точка праворуч на фазорі).'), do: () => this.cnot(), hold: 1.9 },
+        { say: tr('Vložíme 2000 µs voľného vývoja → ρ₀₀,₁₁ sa otočí o ≈ 90° na ≈ (|00⟩ − i|11⟩)/√2 (zlatý bod k bodu „II“).', 'Insert 2000 µs of free evolution → ρ₀₀,₁₁ rotates by ≈ 90° to ≈ (|00⟩ − i|11⟩)/√2 (gold dot moves to point “II”).', 'Вставимо 2000 мкс вільної еволюції → ρ₀₀,₁₁ повертається на ≈ 90° до ≈ (|00⟩ − i|11⟩)/√2 (золота точка до точки «II»).'), do: () => this.delay(2000), hold: 2.3 },
+      ] },
+    ];
+  },
+  buildDock() {
+    const scripts = this.autoScripts(), running = !!this.auto;
+    this.autocap = el('div', 'autocap', running ? '' : tr('Vyber ukážku — Gemini ju samo predvedie krok za krokom.', 'Pick a demo — Gemini plays it step by step.', 'Обери демонстрацію — Gemini відтворить її крок за кроком.'));
+    const nodes = scripts.map((s) => {
+      const b = UI.plainButton((running && this.auto.id === s.id ? '▶ ' : '') + s.name, () => this.startAuto(s.id));
+      if (running && this.auto.id === s.id) b.className = 'on';
+      return UI.row(b);
+    });
+    nodes.push(this.autocap);
+    if (running) nodes.push(UI.row(UI.plainButton(tr('⏹ Zastaviť', '⏹ Stop', '⏹ Зупинити'), () => this.stopAuto())));
+    UI.dockSet(tr('▶ Ukážky (autoplay)', '▶ Demos (autoplay)', '▶ Демонстрації (autoplay)'), nodes);
+  },
+  startAuto(id) {
+    const s = this.autoScripts().find((x) => x.id === id);
+    if (!s) return;
+    this.auto = { id, steps: s.steps, i: -1, wait: 0.2 };
+    Sound.sfx('portal'); this.buildDock();
+  },
+  stopAuto() { this.auto = null; this.buildDock(); },
+  autoNext() {
+    const a = this.auto; if (!a) return;
+    a.i++;
+    if (a.i >= a.steps.length) {
+      this.auto = null; this.buildDock();
+      this.autocap.innerHTML = '<b>✅ ' + tr('Ukážka dokončená.', 'Demo complete.', 'Демонстрацію завершено.') + '</b>';
+      Sound.sfx('toast'); return;
+    }
+    const st = a.steps[a.i];
+    this.autocap.innerHTML = `<b>${a.i + 1}/${a.steps.length}</b> · ${st.say}`;
+    st.do && st.do();
+    a.wait = st.hold || 1.5;
+  },
+
   drawPhasor() {
     if (!this.chart) return;
     const coh = C.mul(this.psi[0], C.conj(this.psi[3])), R = 0.5;
@@ -213,6 +266,7 @@ const Gemini = {
     const k = Math.min(1, dt * 5);
     this.rA = V3.lerp(this.rA, Q2.reducedBloch(this.psi, 0), k);
     this.rB = V3.lerp(this.rB, Q2.reducedBloch(this.psi, 1), k);
+    if (this.auto) { this.auto.wait -= dt; if (this.auto.wait <= 0) this.autoNext(); }
   },
 
   draw(r) {

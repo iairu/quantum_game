@@ -17,10 +17,12 @@ const SpinQ = {
     this.anim = null; this.pulsing = 0; this.t = 0;
     this.I = 1; this.tau = 5; this.phase = 'x'; this.fid = null;
     this.showPhase = false; this.precess = false; this.evoDeg = 90; this.omega = 80; this.lastMeas = null;
+    this.auto = null;
     UI.setHud(this.title, tr('Voľná hra, bez hodnotenia — hradlá, časový vývoj, fáza aj meranie.', 'Free play, no grading — gates, time evolution, phase and measurement.', 'Вільна гра, без оцінювання — гейти, часова еволюція, фаза та вимірювання.'));
     this.buildPanel();
+    this.buildDock();
   },
-  exit() { UI.panelHide(); },
+  exit() { this.auto = null; UI.dockHide(); UI.panelHide(); },
 
   // ---------- fyzika impulzu (rovnaká ako NMR dielňa, level 12, bez rozladenia) ----------
   flip(I = this.I, tau = this.tau) { return 2 * Math.PI * NMR_GAMMA * 1e6 * NMR_K * I * tau * 1e-6; }, // θ = γB₁τ (rad)
@@ -87,6 +89,59 @@ const SpinQ = {
     this.m = v1; this.lastMeas = { label, plus, p: plus ? pPlus : 1 - pPlus }; Sound.sfx('click');
   },
 
+  // ---------- autoplay: riadené ukážky správnych postupov ----------
+  // scenár = pomenovaná postupnosť krokov {say, do}; beží v update(), ďalší krok až keď doanimuje predchádzajúci
+  autoScripts() {
+    const H = () => this.gate(Gate.H, V3.norm([1, 0, 1]), Math.PI, 'H');
+    return [
+      { id: 'super', name: tr('Superpozícia a kolaps', 'Superposition & collapse', 'Суперпозиція і колапс'), steps: [
+        { say: tr('Začíname v stave |0⟩ — isté meranie 0.', 'Start in |0⟩ — a certain measurement of 0.', 'Починаємо в |0⟩ — певне вимірювання 0.'), do: () => this.preset('0'), hold: 1.4 },
+        { say: tr('Hradlo H → rovnomerná superpozícia |+⟩, P(0) = P(1) = 50 %.', 'Gate H → an even superposition |+⟩, P(0) = P(1) = 50 %.', 'Гейт H → рівна суперпозиція |+⟩, P(0) = P(1) = 50 %.'), do: H, hold: 1.7 },
+        { say: tr('Meriame v báze Z — stav náhodne skolabuje na |0⟩ alebo |1⟩ (Bornovo pravidlo).', 'Measure in the Z basis — the state randomly collapses to |0⟩ or |1⟩ (Born rule).', 'Вимірюємо в базисі Z — стан випадково колапсує до |0⟩ чи |1⟩ (правило Борна).'), do: () => this.measure([0, 0, 1], 'Z'), hold: 1.7 },
+      ] },
+      { id: 'ramsey', name: tr('Ramsey: skrytá fáza sa prejaví', 'Ramsey: hidden phase shows up', 'Ремзі: прихована фаза проявляється'), steps: [
+        { say: tr('Štart v |0⟩; odhalíme bežne neviditeľnú fázu.', 'Start in |0⟩; reveal the normally invisible phase.', 'Старт у |0⟩; відкриваємо зазвичай невидиму фазу.'), do: () => { this.preset('0'); if (!this.showPhase) this.togglePhase(); }, hold: 1.6 },
+        { say: tr('Prvý H → |+⟩: šípka na rovníku, relatívna fáza φ = 0°.', 'First H → |+⟩: the arrow sits on the equator, relative phase φ = 0°.', 'Перший H → |+⟩: стрілка на екваторі, відносна фаза φ = 0°.'), do: H, hold: 1.7 },
+        { say: tr('Voľný časový vývoj Û(t): relatívna fáza narastie o 180°.', 'Free evolution Û(t): the relative phase grows by 180°.', 'Вільна еволюція Û(t): відносна фаза зростає на 180°.'), do: () => this.evolve(180), hold: 1.8 },
+        { say: tr('Druhý H premení fázu na populácie → stav je teraz |1⟩.', 'A second H turns phase into populations → the state is now |1⟩.', 'Другий H перетворює фазу на населеності → стан тепер |1⟩.'), do: H, hold: 1.7 },
+        { say: tr('Meranie Z dá takmer isto 1 — fáza, ktorú sme „nevideli“, určila výsledok (pri 0° by vyšla 0).', 'A Z measurement gives 1 almost surely — the phase we “could not see” decided the outcome (at 0° it would be 0).', 'Вимірювання Z дає майже напевно 1 — фаза, яку ми «не бачили», визначила результат (при 0° було б 0).'), do: () => this.measure([0, 0, 1], 'Z'), hold: 1.8 },
+      ] },
+    ];
+  },
+  buildDock() {
+    const scripts = this.autoScripts(), running = !!this.auto;
+    this.autocap = el('div', 'autocap', running ? '' : tr('Vyber ukážku — Psíčko ju samo predvedie krok za krokom.', 'Pick a demo — Little Psi plays it step by step.', 'Обери демонстрацію — Псічко відтворить її крок за кроком.'));
+    const nodes = scripts.map((s) => {
+      const b = UI.plainButton((running && this.auto.id === s.id ? '▶ ' : '') + s.name, () => this.startAuto(s.id));
+      if (running && this.auto.id === s.id) b.className = 'on';
+      return UI.row(b);
+    });
+    nodes.push(this.autocap);
+    if (running) nodes.push(UI.row(UI.plainButton(tr('⏹ Zastaviť', '⏹ Stop', '⏹ Зупинити'), () => this.stopAuto())));
+    UI.dockSet(tr('▶ Ukážky (autoplay)', '▶ Demos (autoplay)', '▶ Демонстрації (autoplay)'), nodes);
+  },
+  startAuto(id) {
+    const s = this.autoScripts().find((x) => x.id === id);
+    if (!s) return;
+    this.anim = null; this.precess = false;
+    this.auto = { id, steps: s.steps, i: -1, wait: 0.2 };
+    Sound.sfx('portal'); this.buildDock();
+  },
+  stopAuto() { this.auto = null; this.buildDock(); },
+  autoNext() {
+    const a = this.auto; if (!a) return;
+    a.i++;
+    if (a.i >= a.steps.length) {
+      this.auto = null; this.buildDock();
+      this.autocap.innerHTML = '<b>✅ ' + tr('Ukážka dokončená.', 'Demo complete.', 'Демонстрацію завершено.') + '</b>';
+      Sound.sfx('toast'); return;
+    }
+    const st = a.steps[a.i];
+    this.autocap.innerHTML = `<b>${a.i + 1}/${a.steps.length}</b> · ${st.say}`;
+    st.do && st.do();
+    a.wait = st.hold || 1.4;
+  },
+
   // po skončení animácie: zapamätať priečnu magnetizáciu pre ilustračný graf FID
   afterShot(label) {
     const v = this.m;
@@ -101,6 +156,9 @@ const SpinQ = {
       this.anim.t = Math.min(1, this.anim.t + dt / 0.6);
       if (this.anim.t >= 1) { const d = this.anim.done; this.anim = null; d && d(); }
       this.updRead();
+    } else if (this.auto) {
+      this.auto.wait -= dt;
+      if (this.auto.wait <= 0) this.autoNext();
     } else if (this.precess) {
       this.psi = Q.apply(Gate.Rz(this.omega * Math.PI / 180 * dt), this.psi); // spojitý časový vývoj Û(dt)
       this.m = Q.bloch(this.psi);

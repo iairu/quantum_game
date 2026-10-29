@@ -581,6 +581,15 @@ const UI = {
     this.appendTheory();
   },
   panelHide() { this.panel.classList.remove('show'); this.panel.innerHTML = ''; },
+  // dok v pravom dolnom rohu — riadené ukážky (autoplay) pre voľné dielne SpinQ / Gemini
+  dockSet(title, nodes) {
+    const d = $('#dock');
+    d.innerHTML = '';
+    d.appendChild(el('h3', null, title));
+    for (const n of nodes) d.appendChild(n);
+    d.classList.add('show');
+  },
+  dockHide() { const d = $('#dock'); d.classList.remove('show'); d.innerHTML = ''; },
   button(html, onclick, cls = '', tip) {
     const b = el('button', (cls ? cls + ' ' : '') + 'gated', html); // gated: počas dialógu nič neurobí (CSS ho zošedí)
     b.onclick = (e) => { if (!this.busy) onclick(e); };

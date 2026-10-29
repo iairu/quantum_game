@@ -20,7 +20,7 @@ const Gemini = {
     this.cam = new OrbitCam([0, 2.1, 0], 12, 0.5, 0.26, 6, 24);
     this.psi = Q2.zero();
     this.rA = [0, 0, 1]; this.rB = [0, 0, 1];
-    this.seq = []; this.pulsing = 0; this.t = 0; this.tau = 2000; this.exp = null;
+    this.seq = []; this.pulsing = 0; this.t = 0; this.tau = 2000; this.exp = null; this.showPhase = false;
     UI.setHud(this.title, tr('Voľná hra pre dva NMR qubity — priprav Bellov stav a skús tri experimenty z prednášky.',
       'Free play with two NMR qubits — prepare a Bell state and try the three experiments from the lecture.',
       'Вільна гра з двома ЯМР-кубітами — створи стан Белла й спробуй три експерименти з лекції.'));
@@ -46,6 +46,13 @@ const Gemini = {
     const phi = -2 * Math.PI * this.Jhz * tau * 1e-6;
     this.apply((p) => Q2.apply1(Gate.Rz(phi), 0, p), tr(`δt ${Fmt.num(tau, 0)} µs`, `δt ${Fmt.num(tau, 0)} µs`, `δt ${Fmt.num(tau, 0)} мкс`));
   },
+  // operátor časového vývoja J-väzby: Û_J(t) = e^{−i·2πJt·(2 Î_z^A Î_z^B)} = diag(e^{−iπJt}, e^{+iπJt}, e^{+iπJt}, e^{−iπJt})
+  // (pri t = 1/2J dá diag(e^{−iπ/4}, e^{+iπ/4}, e^{+iπ/4}, e^{−iπ/4}) — práve z tejto podmienenej fázy sa skladá CNOT)
+  evolveJ(tau) {
+    const a = Math.PI * this.Jhz * tau * 1e-6 / 2, s = C.exp(-a), o = C.exp(a); // ±πJt/2 na diagonále
+    this.apply((p) => [C.mul(p[0], s), C.mul(p[1], o), C.mul(p[2], o), C.mul(p[3], s)], tr(`Û_J ${Fmt.num(tau, 0)} µs`, `Û_J ${Fmt.num(tau, 0)} µs`, `Û_J ${Fmt.num(tau, 0)} мкс`));
+  },
+  togglePhase() { this.showPhase = !this.showPhase; this.buildPanel(); },
 
   // tri experimenty z prednášky: ideálny obvod + reálne namerané čísla (efektívna matica hustoty)
   experiments() {
@@ -77,22 +84,36 @@ const Gemini = {
     this.mat = el('div', 'rho-mat');
     this.chart = UI.chart(300, 150);
     const eB = this.experiments();
+    const aBtn = (l, U, name) => UI.button(l, () => this.gA(U, (name || l) + '·A'), 'gate');
+    const bBtn = (l, U, name) => UI.button(l, () => this.gB(U, (name || l) + '·B'), 'gate');
     UI.panelSet(this.title, [
       UI.info(tr('SpinQ Gemini je stolový 2-qubitový NMR počítač. Qubity sú jadrá ¹H (A) a ³¹P (B) v molekule dimetylfosfitu (f<sub>H</sub> ≈ 27,19 MHz, f<sub>P</sub> ≈ 11,01 MHz), prepojené skalárnou J-väzbou.',
         'SpinQ Gemini is a benchtop 2-qubit NMR computer. The qubits are the nuclei ¹H (A) and ³¹P (B) in a dimethyl phosphite molecule (f<sub>H</sub> ≈ 27.19 MHz, f<sub>P</sub> ≈ 11.01 MHz), linked by a scalar J-coupling.',
         'SpinQ Gemini — настільний 2-кубітний ЯМР-комп’ютер. Кубіти — ядра ¹H (A) та ³¹P (B) у молекулі диметилфосфіту (f<sub>H</sub> ≈ 27,19 МГц, f<sub>P</sub> ≈ 11,01 МГц), з’єднані скалярним J-зв’язком.'), 'tip'),
-      el('h4', null, tr('Qubit A — ¹H (RF impulzy)', 'Qubit A — ¹H (RF pulses)', 'Кубіт A — ¹H (РЧ-імпульси)')),
-      UI.row(UI.button('90°y', () => this.gA(Gate.Ry(Math.PI / 2), '90°y·A')), UI.button('90°x', () => this.gA(Gate.Rx(Math.PI / 2), '90°x·A')), UI.button('X', () => this.gA(Gate.X, 'X·A')), UI.button('Z', () => this.gA(Gate.Z, 'Z·A'))),
-      el('h4', null, tr('Qubit B — ³¹P (RF impulzy)', 'Qubit B — ³¹P (RF pulses)', 'Кубіт B — ³¹P (РЧ-імпульси)')),
-      UI.row(UI.button('90°y', () => this.gB(Gate.Ry(Math.PI / 2), '90°y·B')), UI.button('90°x', () => this.gB(Gate.Rx(Math.PI / 2), '90°x·B')), UI.button('X', () => this.gB(Gate.X, 'X·B')), UI.button('Z', () => this.gB(Gate.Z, 'Z·B'))),
+      el('h4', null, tr('Qubit A — ¹H (hradlá / RF impulzy)', 'Qubit A — ¹H (gates / RF pulses)', 'Кубіт A — ¹H (гейти / РЧ-імпульси)')),
+      UI.row(aBtn('H', Gate.H), aBtn('X', Gate.X), aBtn('Y', Gate.Y), aBtn('Z', Gate.Z), aBtn('S', Gate.S), aBtn('S†', Gate.Sdg), aBtn('T', Gate.T)),
+      UI.row(aBtn('90°x', Gate.Rx(Math.PI / 2), '90°x'), aBtn('90°y', Gate.Ry(Math.PI / 2), '90°y'), aBtn('90°z', Gate.Rz(Math.PI / 2), '90°z')),
+      el('h4', null, tr('Qubit B — ³¹P (hradlá / RF impulzy)', 'Qubit B — ³¹P (gates / RF pulses)', 'Кубіт B — ³¹P (гейти / РЧ-імпульси)')),
+      UI.row(bBtn('H', Gate.H), bBtn('X', Gate.X), bBtn('Y', Gate.Y), bBtn('Z', Gate.Z), bBtn('S', Gate.S), bBtn('S†', Gate.Sdg), bBtn('T', Gate.T)),
+      UI.row(bBtn('90°x', Gate.Rx(Math.PI / 2), '90°x'), bBtn('90°y', Gate.Ry(Math.PI / 2), '90°y'), bBtn('90°z', Gate.Rz(Math.PI / 2), '90°z')),
       el('h4', null, tr('Dvojqubitová operácia', 'Two-qubit operation', 'Двокубітна операція')),
       UI.row(UI.button(tr('CNOT (A → B cez J-väzbu)', 'CNOT (A → B via J-coupling)', 'CNOT (A → B через J-зв’язок)'), () => this.cnot(), 'big'), UI.button('Reset |00⟩', () => this.reset())),
       UI.info(tr('CNOT nie je samostatná matica: zariadenie ho zloží z lokálnych RF rotácií a podmienenej fázy z J-väzby (U<sub>J</sub> pri t = 1/2J + lokálne Z-korekcie → CZ, potom H na B).',
         'CNOT is not a standalone matrix: the device builds it from local RF rotations and the conditional phase of the J-coupling (U<sub>J</sub> at t = 1/2J + local Z corrections → CZ, then H on B).',
         'CNOT — не окрема матриця: пристрій складає його з локальних РЧ-обертань і умовної фази J-зв’язку (U<sub>J</sub> при t = 1/2J + локальні Z-корекції → CZ, потім H на B).'), 'tip'),
-      el('h4', null, tr('Oneskorenie medzi hradlami', 'Delay between gates', 'Затримка між гейтами')),
-      this.slTau = UI.slider(tr('oneskorenie δt (µs)', 'delay δt (µs)', 'затримка δt (мкс)'), 0, 3000, 50, this.tau, (v) => { this.tau = v; return Fmt.num(v, 0) + ' µs'; }),
-      UI.row(UI.button(tr('⏱ Vlož voľný vývoj δt', '⏱ Insert free evolution δt', '⏱ Вставити вільну еволюцію δt'), () => this.delay(this.tau))),
+      el('h4', null, tr('⏱ Operátor časového vývoja Û(t)', '⏱ Time-evolution operator Û(t)', '⏱ Оператор часової еволюції Û(t)')),
+      this.slTau = UI.slider(tr('čas vývoja t (µs)', 'evolution time t (µs)', 'час еволюції t (мкс)'), 0, 3000, 50, this.tau, (v) => { this.tau = v; return Fmt.num(v, 0) + ' µs'; }),
+      UI.row(
+        UI.button(tr('δt: chemický posun', 'δt: chemical shift', 'δt: хімічний зсув'), () => this.delay(this.tau)),
+        UI.button('Û_J', () => this.evolveJ(this.tau))),
+      UI.info(tr('Û(t) = e^{−iĤt/ħ}. „δt: chemický posun“ otáča rohovú koherenciu ρ₀₀,₁₁ v komplexnej rovine (voľný vývoj z experimentu II). „Û_J“ je podmienená fázová evolúcia J-väzby diag(e^{−iπJt}, e^{+iπJt}, e^{+iπJt}, e^{−iπJt}); pri t = 1/2J (≈ {T} µs) z nej vzniká CNOT.',
+        'Û(t) = e^{−iĤt/ħ}. “δt: chemical shift” rotates the corner coherence ρ₀₀,₁₁ in the complex plane (the free evolution of experiment II). “Û_J” is the conditional J-coupling phase evolution diag(e^{−iπJt}, e^{+iπJt}, e^{+iπJt}, e^{−iπJt}); at t = 1/2J (≈ {T} µs) it builds CNOT.',
+        'Û(t) = e^{−iĤt/ħ}. «δt: хімічний зсув» обертає кутову когерентність ρ₀₀,₁₁ у комплексній площині (вільна еволюція з експерименту II). «Û_J» — умовна фазова еволюція J-зв’язку diag(e^{−iπJt}, e^{+iπJt}, e^{+iπJt}, e^{−iπJt}); при t = 1/2J (≈ {T} мкс) з неї постає CNOT.').replace(/\{T\}/g, Fmt.num(1e6 / (2 * this.Jhz), 0)), 'tip'),
+      el('h4', null, tr('Fáza a meranie', 'Phase and measurement', 'Фаза та вимірювання')),
+      UI.row(UI.button((this.showPhase ? '● ' : '○ ') + tr('Ukáž fázu', 'Reveal phase', 'Показати фазу'), () => this.togglePhase())),
+      UI.info(tr('Meraním (Bornovo pravidlo) dostaneme len pravdepodobnosti P(00…11) — fázy amplitúd aj globálna fáza γ zostávajú skryté. Tlačidlo ich odhalí a doplní korelátory ⟨ZZ⟩, ⟨XX⟩, ⟨YY⟩, ktorými sa Bellov stav naozaj overuje.',
+        'A measurement (Born rule) gives only the probabilities P(00…11) — the amplitude phases and the global phase γ stay hidden. The button reveals them and adds the correlators ⟨ZZ⟩, ⟨XX⟩, ⟨YY⟩ by which a Bell state is actually verified.',
+        'Вимірювання (правило Борна) дає лише ймовірності P(00…11) — фази амплітуд і глобальна фаза γ лишаються прихованими. Кнопка розкриває їх і додає корелятори ⟨ZZ⟩, ⟨XX⟩, ⟨YY⟩, якими насправді перевіряють стан Белла.'), 'tip'),
       this.read,
       this.mat,
       el('h4', null, tr('Rohová koherencia ρ₀₀,₁₁ v komplexnej rovine', 'Corner coherence ρ₀₀,₁₁ in the complex plane', 'Кутова когерентність ρ₀₀,₁₁ у комплексній площині')),
@@ -135,6 +156,8 @@ const Gemini = {
       + `<br>ρ₀₀,₁₁ = ${Fmt.complex(coh, 2)} · |ρ₀₀,₁₁| = ${Fmt.num(mag, 2)} · arg = ${Fmt.num(ar, 0)}°`
       + `<br>${tr('vernosť s |Φ⁺⟩', 'fidelity with |Φ⁺⟩', 'вірність з |Φ⁺⟩')} F = <b>${Fmt.num(F, 2)}</b>`
       + (ent ? tr(' · 🔗 <b>previazané</b>', ' · 🔗 <b>entangled</b>', ' · 🔗 <b>сплутані</b>') : tr(' · produktový stav', ' · product state', ' · добутковий стан'))
+      + this.correlatorsHtml(psi)
+      + (this.showPhase ? this.phaseHtml(psi) : '')
       + (this.seq.length ? `<br><span class="muted">${this.seq.join(' → ')}</span>` : '');
     this.mat.innerHTML = this.matHtml();
     if (this.expNote) {
@@ -144,6 +167,27 @@ const Gemini = {
         : tr('Vyber experiment I, II alebo III — obvod sa prehrá a zobrazia sa reálne namerané hodnoty.', 'Pick experiment I, II or III — the circuit plays and the real measured values appear.', 'Обери експеримент I, II чи III — схема відтвориться й покажуться реальні виміряні значення.');
     }
     this.drawPhasor();
+  },
+  // korelátory ⟨ZZ⟩, ⟨XX⟩, ⟨YY⟩ — nimi sa Bellov stav naozaj overuje (|Φ⁺⟩ dáva +1, +1, −1)
+  correlatorsHtml(psi) {
+    const re = (x, y) => C.mul(C.conj(x), y)[0];
+    const ZZ = C.abs2(psi[0]) - C.abs2(psi[1]) - C.abs2(psi[2]) + C.abs2(psi[3]);
+    const XX = 2 * (re(psi[0], psi[3]) + re(psi[1], psi[2]));
+    const YY = 2 * (-re(psi[0], psi[3]) + re(psi[1], psi[2]));
+    return `<br>⟨ZZ⟩ = ${Fmt.num(ZZ, 2)} · ⟨XX⟩ = ${Fmt.num(XX, 2)} · ⟨YY⟩ = ${Fmt.num(YY, 2)}`;
+  },
+  // fázy jednotlivých amplitúd + globálna fáza γ, ktorú meranie nikdy neodhalí
+  phaseHtml(psi) {
+    const kets = ['00', '01', '10', '11'], parts = [];
+    let g = 0, gset = false;
+    for (let i = 0; i < 4; i++) {
+      if (C.abs(psi[i]) > 1e-6) {
+        parts.push(`∠a<sub>${kets[i]}</sub> = ${Fmt.num(C.arg(psi[i]) * 180 / Math.PI, 0)}°`);
+        if (!gset) { g = C.arg(psi[i]); gset = true; }
+      }
+    }
+    return `<br><span class="muted">${tr('fázy amplitúd', 'amplitude phases', 'фази амплітуд')}: ${parts.join(' · ') || '—'}`
+      + `<br>${tr('globálna fáza γ', 'global phase γ', 'глобальна фаза γ')} = ${Fmt.num(g * 180 / Math.PI, 0)}° ${tr('(nemerateľná)', '(unobservable)', '(невимірна)')}</span>`;
   },
   drawPhasor() {
     if (!this.chart) return;

@@ -1,8 +1,10 @@
 'use strict';
 // SpinQ — voľná dielňa (bez hodnotenia, dostupná kedykoľvek z ostrova / mapy / nastavení, klávesom Q).
 // Rovnaký fyzikálny model ako NMR dielňa (level 12): prúdový RF impulz θ = γB₁τ v priečnej cievke.
-// Navyše: idealizované logické hradlá (X, Y, Z, H, S, T) ako presné rotácie Blochovho vektora a
-// presety základných stavov — na voľné skúšanie bez cieľov, kvízov a hviezdičiek.
+// Navyše: idealizované logické hradlá (X, Y, Z, H, S, T, √X, √Y) ako presné rotácie, presety stavov,
+// operátor časového vývoja Û(t) = e^{−iĤt/ħ} (Larmorova precesia), odhalenie bežne neviditeľnej
+// fázy (globálna aj relatívna) a projektívne meranie v bázach Z / X / Y.
+// Okrem Blochovho vektora (ktorý globálnu fázu NEvie zobraziť) držíme aj skutočný stavový vektor |ψ⟩.
 
 const SpinQ = {
   num: 'spinq', // nečíselné id scény — Hub, mapa a uloženie pozície ho jednoducho ignorujú
@@ -11,9 +13,11 @@ const SpinQ = {
 
   enter() {
     this.cam = new OrbitCam([0, 1.6, 0], 9, 0.55, 0.28, 4, 18);
-    this.m = [0, 0, 1]; this.anim = null; this.pulsing = 0; this.t = 0;
+    this.psi = Q.ket0(); this.m = [0, 0, 1]; // |ψ⟩ (so skutočnou fázou) aj Blochov vektor (na vizualizáciu)
+    this.anim = null; this.pulsing = 0; this.t = 0;
     this.I = 1; this.tau = 5; this.phase = 'x'; this.fid = null;
-    UI.setHud(this.title, tr('Voľná hra, bez hodnotenia — skús hradlá, presety aj prúdový impulz.', 'Free play, no grading — try the gates, presets and the current pulse.', 'Вільна гра, без оцінювання — спробуй гейти, заготовки та імпульс струму.'));
+    this.showPhase = false; this.precess = false; this.evoDeg = 90; this.omega = 80; this.lastMeas = null;
+    UI.setHud(this.title, tr('Voľná hra, bez hodnotenia — hradlá, časový vývoj, fáza aj meranie.', 'Free play, no grading — gates, time evolution, phase and measurement.', 'Вільна гра, без оцінювання — гейти, часова еволюція, фаза та вимірювання.'));
     this.buildPanel();
   },
   exit() { UI.panelHide(); },
@@ -27,36 +31,62 @@ const SpinQ = {
     if (!a) return this.m;
     return V3.rotate(a.v0, a.axis, a.ang * a.t);
   },
-  // najkratšia rotácia z v0 do v1 (pre presety); pri protiľahlých vektoroch je os ľubovoľná priečna
+  // najkratšia rotácia z v0 do v1 (pre presety / meranie); pri protiľahlých vektoroch je os ľubovoľná priečna
   rotTo(v0, v1) {
     const ang = Math.acos(clamp(V3.dot(v0, v1), -1, 1));
     let axis = V3.cross(v0, v1);
     if (V3.len(axis) < 1e-6) axis = Math.abs(v0[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0];
     return { axis: V3.norm(axis), ang };
   },
-  preset(v1, label) {
+
+  // jadro: aplikuj unitárne hradlo U na |ψ⟩ a súčasne animuj zodpovedajúcu rotáciu Blochovho vektora (axis, ang)
+  applyU(U, axis, ang, label, pulse) {
     if (this.anim) return;
-    const { axis, ang } = this.rotTo(this.m, v1);
-    if (ang < 1e-6) return;
-    this.anim = { v0: this.m, axis, ang, t: 0, done: () => this.afterShot(label) };
-    this.m = v1.slice();
-    Sound.sfx('cast');
+    this.psi = Q.apply(U, this.psi);
+    const v1 = Q.bloch(this.psi);
+    this.anim = { v0: this.m, axis: V3.norm(axis), ang, t: 0, done: () => this.afterShot(label) };
+    this.m = v1;
+    if (pulse) this.pulsing = 1;
+    this.lastMeas = null; Sound.sfx('cast');
   },
-  // idealizované logické hradlo: presná rotácia o pevný uhol okolo pevnej osi
-  gate(axis, ang, label) {
+  preset(name) {
     if (this.anim) return;
-    this.anim = { v0: this.m, axis, ang, t: 0, done: () => this.afterShot(label) };
-    this.m = V3.rotate(this.m, axis, ang);
-    this.pulsing = 1; Sound.sfx('cast');
+    this.psi = Q.named(name);
+    const v1 = Q.bloch(this.psi), { axis, ang } = this.rotTo(this.m, v1);
+    this.anim = { v0: this.m, axis, ang: Math.max(ang, 1e-6), t: 0, done: () => this.afterShot(name) };
+    this.m = v1; this.lastMeas = null; Sound.sfx('cast');
   },
-  // prúdový RF impulz: rotácia okolo osi vo fáze impulzu (priečna rovina)
+  gate(U, axis, ang, label) { this.applyU(U, axis, ang, label, true); },
+
+  // prúdový RF impulz: rotácia o θ = γB₁τ okolo osi vo fáze impulzu (priečna rovina)
   firePulse() {
-    if (this.anim) return;
     const th = this.flip(), axis = V3.norm(NMR_PHASES[this.phase]);
-    this.anim = { v0: this.m, axis, ang: th, t: 0, done: () => this.afterShot(`${Fmt.num(th * 180 / Math.PI, 0)}° (${this.phase})`) };
-    this.m = V3.rotate(this.m, axis, th);
-    this.pulsing = 1; Sound.sfx('cast');
+    this.applyU(Gate.R(axis, th), axis, th, `${Fmt.num(th * 180 / Math.PI, 0)}° (${this.phase})`, true);
   },
+  // operátor časového vývoja: Ĥ = −½ħω σ_z ⇒ Û(t) = e^{−iĤt/ħ} = e^{−i(−½ω)σ_z t} = R_z(ωt) — Larmorova precesia okolo B₀
+  evolve(deg) {
+    const ang = deg * Math.PI / 180;
+    this.applyU(Gate.Rz(ang), [0, 0, 1], ang, `Û(t): ${Fmt.num(deg, 0)}° ${tr('okolo z', 'about z', 'навколо z')}`, false);
+  },
+  togglePrecess() { this.precess = !this.precess; this.buildPanel(); },
+  togglePhase() { this.showPhase = !this.showPhase; this.buildPanel(); },
+
+  // projektívne meranie pozdĺž osi n (Blochov vektor): Bornova pravdepodobnosť (1 ± r·n)/2, potom kolaps na vlastný stav |±n⟩
+  eigenstate(n, plus) {
+    const v = plus ? n : V3.scale(n, -1), th = Math.acos(clamp(v[2], -1, 1)), ph = Math.atan2(v[1], v[0]);
+    return Q.fromBloch(th, ph);
+  },
+  measure(n, label) {
+    if (this.anim) return;
+    this.precess = false;
+    const r = Q.bloch(this.psi), pPlus = clamp((1 + V3.dot(V3.norm(n), r)) / 2, 0, 1), plus = rand() < pPlus;
+    const nn = V3.norm(n), v1 = plus ? nn.slice() : V3.scale(nn, -1);
+    this.psi = this.eigenstate(nn, plus);
+    const { axis, ang } = this.rotTo(this.m, v1);
+    this.anim = { v0: this.m, axis, ang: Math.max(ang, 1e-6), t: 0, done: () => this.afterShot(`${label} → ${plus ? '+1' : '−1'}`) };
+    this.m = v1; this.lastMeas = { label, plus, p: plus ? pPlus : 1 - pPlus }; Sound.sfx('click');
+  },
+
   // po skončení animácie: zapamätať priečnu magnetizáciu pre ilustračný graf FID
   afterShot(label) {
     const v = this.m;
@@ -71,6 +101,10 @@ const SpinQ = {
       this.anim.t = Math.min(1, this.anim.t + dt / 0.6);
       if (this.anim.t >= 1) { const d = this.anim.done; this.anim = null; d && d(); }
       this.updRead();
+    } else if (this.precess) {
+      this.psi = Q.apply(Gate.Rz(this.omega * Math.PI / 180 * dt), this.psi); // spojitý časový vývoj Û(dt)
+      this.m = Q.bloch(this.psi);
+      this.updRead();
     }
   },
 
@@ -78,18 +112,38 @@ const SpinQ = {
   buildPanel() {
     this.read = UI.info('');
     this.chart = UI.chart(300, 120);
-    const presetBtn = (v, label) => UI.button(label, () => this.preset(v, label));
-    const gateBtn = (label, axis, ang) => UI.button(label, () => this.gate(axis, ang, label));
+    const presetBtn = (name) => UI.button(name, () => this.preset(name));
+    const gateBtn = (label, U, axis, ang) => UI.button(label, () => this.gate(U, axis, ang, label));
+    const Tdg = [[C.of(1), C.of(0)], [C.of(0), C.exp(-Math.PI / 4)]]; // T† = diag(1, e^{−iπ/4})
+    const measBtn = (label, n) => UI.button('📡 ' + label, () => this.measure(n, label));
     UI.panelSet(this.title, [
       UI.info(tr('Voľná dielňa so spinom ½ — ako jadro v stolovom NMR počítači SpinQ. Žiadne ciele ani otázky, len skús, čo chceš.',
         'A free-play workshop with a spin-½ — like the nucleus in a benchtop NMR computer such as SpinQ. No goals or questions, just try whatever you like.',
         'Вільна майстерня зі спіном ½ — як ядро в настільному ЯМР-комп’ютері SpinQ. Без цілей і питань, просто пробуй, що хочеш.'), 'tip'),
       el('h4', null, tr('Presety', 'Presets', 'Заготовки')),
-      UI.row(presetBtn([0, 0, 1], '|0⟩'), presetBtn([0, 0, -1], '|1⟩'), presetBtn([1, 0, 0], '|+⟩'), presetBtn([-1, 0, 0], '|−⟩'), presetBtn([0, 1, 0], '|+i⟩'), presetBtn([0, -1, 0], '|−i⟩')),
+      UI.row(presetBtn('0'), presetBtn('1'), presetBtn('+'), presetBtn('-'), presetBtn('+i'), presetBtn('-i')),
       el('h4', null, tr('Idealizované hradlá', 'Idealized gates', 'Ідеалізовані гейти')),
-      UI.row(gateBtn('X', [1, 0, 0], Math.PI), gateBtn('Y', [0, 1, 0], Math.PI), gateBtn('Z', [0, 0, 1], Math.PI), gateBtn('H', V3.norm([1, 0, 1]), Math.PI)),
-      UI.row(gateBtn('S', [0, 0, 1], Math.PI / 2), gateBtn('S†', [0, 0, 1], -Math.PI / 2), gateBtn('T', [0, 0, 1], Math.PI / 4), gateBtn('T†', [0, 0, 1], -Math.PI / 4)),
+      UI.row(gateBtn('X', Gate.X, [1, 0, 0], Math.PI), gateBtn('Y', Gate.Y, [0, 1, 0], Math.PI), gateBtn('Z', Gate.Z, [0, 0, 1], Math.PI), gateBtn('H', Gate.H, V3.norm([1, 0, 1]), Math.PI)),
+      UI.row(gateBtn('S', Gate.S, [0, 0, 1], Math.PI / 2), gateBtn('S†', Gate.Sdg, [0, 0, 1], -Math.PI / 2), gateBtn('T', Gate.T, [0, 0, 1], Math.PI / 4), gateBtn('T†', Tdg, [0, 0, 1], -Math.PI / 4)),
+      UI.row(gateBtn('√X', Gate.Rx(Math.PI / 2), [1, 0, 0], Math.PI / 2), gateBtn('√Y', Gate.Ry(Math.PI / 2), [0, 1, 0], Math.PI / 2)),
       this.read,
+      el('h4', null, tr('🫥 Fáza (bežne skrytá)', '🫥 Phase (normally hidden)', '🫥 Фаза (зазвичай прихована)')),
+      UI.row(UI.button((this.showPhase ? '● ' : '○ ') + tr('ukázať fázu α, β', 'show phase of α, β', 'показати фазу α, β'), () => this.togglePhase())),
+      UI.info(tr('Blochova sféra ukáže len <b>relatívnu</b> fázu (uhol φ). <b>Globálnu</b> fázu e^{iγ} celého stavu nevidno — nemení žiadne P(…) ani Blochov vektor, preto je principiálne nemerateľná.',
+        'The Bloch sphere shows only the <b>relative</b> phase (the angle φ). The <b>global</b> phase e^{iγ} of the whole state is invisible — it changes no P(…) and no Bloch vector, so it is fundamentally unmeasurable.',
+        'Сфера Блоха показує лише <b>відносну</b> фазу (кут φ). <b>Глобальну</b> фазу e^{iγ} усього стану не видно — вона не змінює жодного P(…) ані вектора Блоха, тож принципово невимірна.'), 'tip'),
+      el('h4', null, tr('⏱ Operátor časového vývoja Û(t)', '⏱ Time-evolution operator Û(t)', '⏱ Оператор часової еволюції Û(t)')),
+      this.slEvo = UI.slider(tr('uhol precesie ωt', 'precession angle ωt', 'кут прецесії ωt'), 0, 360, 5, this.evoDeg, (v) => { this.evoDeg = v; return Fmt.num(v, 0) + '°'; }),
+      UI.row(UI.button(tr('⏱ Û(t) = R_z(ωt)', '⏱ Û(t) = R_z(ωt)', '⏱ Û(t) = R_z(ωt)'), () => this.evolve(this.evoDeg)),
+        UI.button((this.precess ? '⏸ ' : '▶ ') + tr('voľná precesia', 'free precession', 'вільна прецесія'), () => this.togglePrecess())),
+      UI.info(tr('Û(t) = e^{−iĤt/ħ}. V stálom poli B₀ (Ĥ = −½ħω σ_z) je to R_z(ωt): Blochov vektor voľne precesuje okolo osi z, relatívna fáza rastie, ale P(0), P(1) sa nemenia.',
+        'Û(t) = e^{−iĤt/ħ}. In a steady field B₀ (Ĥ = −½ħω σ_z) this is R_z(ωt): the Bloch vector freely precesses about z, the relative phase grows, but P(0), P(1) stay unchanged.',
+        'Û(t) = e^{−iĤt/ħ}. У сталому полі B₀ (Ĥ = −½ħω σ_z) це R_z(ωt): вектор Блоха вільно прецесує навколо z, відносна фаза зростає, але P(0), P(1) не змінюються.'), 'tip'),
+      el('h4', null, tr('📡 Meranie (kolaps)', '📡 Measurement (collapse)', '📡 Вимірювання (колапс)')),
+      UI.row(measBtn('Z', [0, 0, 1]), measBtn('X', [1, 0, 0]), measBtn('Y', [0, 1, 0])),
+      UI.info(tr('Meranie pozdĺž osi n dá „+1“ s pravdepodobnosťou (1 + r·n)/2 a stav skolabuje na |±n⟩. Globálna fáza tieto pravdepodobnosti nijako neovplyvní.',
+        'Measuring along axis n gives “+1” with probability (1 + r·n)/2 and the state collapses to |±n⟩. The global phase has no effect on these probabilities.',
+        'Вимірювання вздовж осі n дає «+1» з імовірністю (1 + r·n)/2, і стан колапсує до |±n⟩. Глобальна фаза ніяк не впливає на ці ймовірності.'), 'tip'),
       el('h4', null, tr('⚡ RF impulz (ako v NMR dielni)', '⚡ RF pulse (as in the NMR workshop)', '⚡ РЧ-імпульс (як у ЯМР-майстерні)')),
       this.slI = UI.slider(tr('prúd v cievke I (A)', 'coil current I (A)', 'струм у котушці I (А)'), 0, 2, 0.05, this.I, (v) => { this.I = v; this.updRead(); return Fmt.num(v, 2) + ' A'; }),
       this.slTau = UI.slider(tr('dĺžka impulzu τ (µs)', 'pulse length τ (µs)', 'тривалість імпульсу τ (мкс)'), 0, 40, 0.5, this.tau, (v) => { this.tau = v; this.updRead(); return Fmt.num(v, 1) + ' µs'; }),
@@ -104,9 +158,22 @@ const SpinQ = {
   },
   updRead() {
     if (!this.read) return;
-    const v = this.disp(), th = Math.acos(clamp(v[2], -1, 1)), phRaw = Math.atan2(v[1], v[0]), ph = phRaw < 0 ? phRaw + 2 * Math.PI : phRaw, p0 = clamp((1 + v[2]) / 2, 0, 1);
-    this.read.innerHTML = `M = (${v.map((x) => Fmt.num(x, 2)).join(', ')}) · θ = ${Fmt.num(th * 180 / Math.PI, 0)}° · φ = ${Fmt.num(ph * 180 / Math.PI, 0)}°<br>`
-      + `P(0) = ${Fmt.pct(p0)} · P(1) = ${Fmt.pct(1 - p0)}<br>B₁ = k·I = ${Fmt.num(NMR_K * this.I * 1000, 2)} mT · θ<sub>${tr('impulz', 'pulse', 'імпульс')}</sub> = γB₁τ = ${Fmt.num(this.flipDeg(), 1)}°`;
+    const r = this.anim ? this.disp() : Q.bloch(this.psi);
+    const th = Math.acos(clamp(r[2], -1, 1)), phRaw = Math.atan2(r[1], r[0]), ph = phRaw < 0 ? phRaw + 2 * Math.PI : phRaw, p0 = clamp((1 + r[2]) / 2, 0, 1);
+    let h = `|ψ⟩ = <b>${Q.ketString(this.psi)}</b>`
+      + `<br>M = (${r.map((x) => Fmt.num(x, 2)).join(', ')}) · θ = ${Fmt.num(th * 180 / Math.PI, 0)}° · φ = ${Fmt.num(ph * 180 / Math.PI, 0)}°`
+      + `<br>P(0) = ${Fmt.pct(p0)} · P(1) = ${Fmt.pct(1 - p0)}`;
+    if (this.showPhase) {
+      const a = this.psi[0], b = this.psi[1], norm = (x) => ((x * 180 / Math.PI) % 360 + 360) % 360;
+      const ga = C.abs(a) > 1e-6 ? C.arg(a) : C.arg(b), rel = C.arg(b) - C.arg(a);
+      h += `<br><span class="muted">${tr('fázy (bežne neviditeľné)', 'phases (normally invisible)', 'фази (зазвичай невидимі)')}:</span>`
+        + `<br>α = ${Fmt.complex(a, 3)} · β = ${Fmt.complex(b, 3)}`
+        + `<br>∠α = ${Fmt.num(norm(C.arg(a)), 0)}° · ∠β = ${Fmt.num(norm(C.arg(b)), 0)}°`
+        + `<br>${tr('relatívna', 'relative', 'відносна')} Δφ = ${Fmt.num(norm(rel), 0)}° · ${tr('globálna', 'global', 'глобальна')} γ = ${Fmt.num(norm(ga), 0)}° ${tr('(skrytá)', '(hidden)', '(прихована)')}`;
+    }
+    h += `<br>B₁ = k·I = ${Fmt.num(NMR_K * this.I * 1000, 2)} mT · θ<sub>${tr('impulz', 'pulse', 'імпульс')}</sub> = γB₁τ = ${Fmt.num(this.flipDeg(), 1)}°`;
+    if (this.lastMeas) h += `<br><span class="muted">${tr('posledné meranie', 'last measurement', 'останнє вимірювання')}: ${this.lastMeas.label} → ${this.lastMeas.plus ? '+1' : '−1'} (p = ${Fmt.pct(this.lastMeas.p)})</span>`;
+    this.read.innerHTML = h;
   },
   drawTrace() {
     if (!this.chart) return;
@@ -125,7 +192,7 @@ const SpinQ = {
     for (const a of [0.8, 2.4, 4.0, 5.6]) r.draw('box', M4.trs([Math.cos(a) * 1.7, 1.75, Math.sin(a) * 1.7], 0, [0.25, 3.5, 0.25]), [0.4, 0.42, 0.48]);
     r.arrow([-2.4, 0.4, 0], [-2.4, 3.2, 0], [0.5, 0.8, 1], 0.06);
     UI.label('qB0', [-2.4, 3.55, 0], 'B₀', 'ket');
-    UI.hot([0, 3.6, 0], tr('<b>Magnet</b> — stále pole B₀ (ako permanentný magnet v SpinQ, ≈ 1 T).', '<b>Magnet</b> — a steady field B₀ (like the permanent magnet in a SpinQ, ≈ 1 T).', '<b>Магніт</b> — стале поле B₀ (як постійний магніт у SpinQ, ≈ 1 Тл).'), 60);
+    UI.hot([0, 3.6, 0], tr('<b>Magnet</b> — stále pole B₀ (ako permanentný magnet v SpinQ, ≈ 1 T). Určuje os precesie aj os merania Z.', '<b>Magnet</b> — a steady field B₀ (like the permanent magnet in a SpinQ, ≈ 1 T). It sets the precession axis and the Z measurement axis.', '<b>Магніт</b> — стале поле B₀ (як постійний магніт у SpinQ, ≈ 1 Тл). Задає вісь прецесії та вісь вимірювання Z.'), 60);
     r.draw('cylinder', M4.trs([0, 0.4, 0], 0, [0.22, 2.6, 0.22]), [0.8, 0.9, 1], { alpha: 0.3 });
     for (const s of [-1, 1]) {
       const p = [s * 0.95, 1.6, 0];

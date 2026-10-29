@@ -12,6 +12,7 @@ const Settings = {
   theme: 'menu', // predvolená téma: výberové menu portálov (na uvítaní sa už nevyberá)
   mode: 'equations', // predvolený je jazyk rovníc; typ hry: 'pictures' (obrazy najprv) alebo 'equations' (rovnice najprv, rovnicová mnemotechnika)
   appearance: 'dark', // svetlý / tmavý režim vzhľadu „Qiskit“ (predvolená téma menu/classic a uvítanie); severská a MMO téma majú vlastný vzhľad
+  fontScale: 1, // 🔡 prístupnosť: celková veľkosť textu rozhrania (0,8 – 1,6), ukladá sa
   get eq() { return this.mode === 'equations'; },
   // normálna a ťažká: rovnice bez farieb a glyfov, len klasická sadzba (Baskerville); farebná mnemotechnika patrí ľahkej a laickej
   get plainEq() { return !this.easy; },
@@ -68,13 +69,14 @@ const Settings = {
       if (THEMES.includes(d.theme)) this.theme = d.theme;
       if (['pictures', 'equations'].includes(d.mode)) this.mode = d.mode;
       if (d.appearance === 'light' || d.appearance === 'dark') this.appearance = d.appearance;
+      if (typeof d.fontScale === 'number' && d.fontScale >= 0.8 && d.fontScale <= 1.6) this.fontScale = d.fontScale;
       for (const k of Object.keys(this.view)) if (typeof d.view?.[k] === typeof this.view[k]) this.view[k] = d.view[k];
       for (const k of Object.keys(this.audio)) if (typeof d.audio?.[k] === typeof this.audio[k]) this.audio[k] = d.audio[k];
       if (d.audio?.music === 0.35) this.audio.music = 0.15; // staré predvolené (nezmenené hráčom) → nové tichšie
     } catch (e) { /* predvolené nastavenia */ }
   },
   save() {
-    try { localStorage.setItem('kvantp-game1-settings', JSON.stringify({ diff: this.diff, scrolls: this.scrolls, skipDialog: this.skipDialog, noBlanks: this.noBlanks, confidence: this.confidence, theme: this.theme, mode: this.mode, appearance: this.appearance, view: this.view, audio: this.audio })); } catch (e) { /* bez ukladania */ }
+    try { localStorage.setItem('kvantp-game1-settings', JSON.stringify({ diff: this.diff, scrolls: this.scrolls, skipDialog: this.skipDialog, noBlanks: this.noBlanks, confidence: this.confidence, theme: this.theme, mode: this.mode, appearance: this.appearance, fontScale: this.fontScale, view: this.view, audio: this.audio })); } catch (e) { /* bez ukladania */ }
   },
 };
 Settings.load();

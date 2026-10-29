@@ -78,6 +78,25 @@ const UI = {
     ls.setAttribute('aria-label', tr('Jazyk', 'Language', 'Мова'));
     try { this.log = JSON.parse(localStorage.getItem('kvantp-game1-log') || '[]'); } catch (e) { this.log = []; }
     this.initTooltips();
+    this.applyFontScale();
+  },
+
+  // ---------- prístupnosť: celková veľkosť textu rozhrania ----------
+  // CSS používa pevné px, preto mierku aplikujeme cez `zoom` na jednotlivé prekrytia HUD/panelov
+  // (nie na 3D plátno #gl ani na popisky #labels, ktoré majú vlastnú mierku labelScale).
+  applyFontScale() {
+    const z = Settings.fontScale || 1;
+    for (const c of document.body.children) {
+      if (c.id === 'gl' || c.id === 'labels' || c.tagName === 'CANVAS') continue;
+      c.style.zoom = z === 1 ? '' : z;
+    }
+  },
+  setFontScale(v) {
+    Settings.fontScale = clamp(Math.round(v * 20) / 20, 0.8, 1.6);
+    Settings.save();
+    this.applyFontScale();
+    Sound.sfx('click');
+    if ($('#settings').classList.contains('show')) this.renderSettings();
   },
 
   // ---------- svetlý / tmavý režim (vzhľad „Qiskit“) ----------
@@ -739,6 +758,14 @@ const UI = {
     body.appendChild(el('h3', null, tr('🧫 SpinQ Gemini: dva qubity', '🧫 SpinQ Gemini: two qubits', '🧫 SpinQ Gemini: два кубіти')));
     body.appendChild(el('p', 'muted', tr('Dvojqubitový NMR (¹H + ³¹P): priprav Bellov stav H→CNOT, vlož oneskorenie a prehraj tri reálne experimenty z prednášky 7 — maticu hustoty ρ aj vernosť vidíš naživo.', 'Two-qubit NMR (¹H + ³¹P): prepare a Bell state H→CNOT, insert a delay and replay the three real experiments from lecture 7 — the density matrix ρ and fidelity update live.', 'Двокубітний ЯМР (¹H + ³¹P): створи стан Белла H→CNOT, встав затримку й відтвори три реальні експерименти з лекції 7 — матрицю густини ρ і вірність видно наживо.')));
     body.appendChild(this.row(this.plainButton(tr('🧫 Otvoriť SpinQ Gemini', '🧫 Open SpinQ Gemini', '🧫 Відкрити SpinQ Gemini'), () => { this.toggleSettings(false); Game.enterGemini(); })));
+    body.appendChild(el('h3', null, tr('🔡 Veľkosť textu', '🔡 Text size', '🔡 Розмір тексту')));
+    body.appendChild(el('p', 'muted', tr('Celková veľkosť písma rozhrania (HUD, panely, ponuky) — pre lepšiu čitateľnosť. Veľkosť 3D popiskov pri sfére sa nastavuje nižšie.', 'Overall size of the interface text (HUD, panels, menus) — for easier reading. The size of the 3D labels by the sphere is set below.', 'Загальний розмір тексту інтерфейсу (HUD, панелі, меню) — для кращої читабельності. Розмір 3D-написів біля сфери налаштовується нижче.')));
+    body.appendChild(this.row(
+      this.plainButton('A−', () => this.setFontScale(Settings.fontScale - 0.1)),
+      el('span', 'muted', Math.round(Settings.fontScale * 100) + ' %'),
+      this.plainButton('A+', () => this.setFontScale(Settings.fontScale + 0.1)),
+      this.plainButton(tr('Pôvodná', 'Reset', 'Скинути'), () => this.setFontScale(1)),
+    ));
     body.appendChild(el('h3', null, tr('📊 Vizualizácie', '📊 Visualizations', '📊 Візуалізації')));
     const g1 = el('div', 'grid2');
     for (const [k, label, tip] of [

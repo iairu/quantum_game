@@ -73,6 +73,37 @@ const OBJECTIVES = {
   13: [
     { id: 'strike', steps: ['intro', 'phase1', 'phase2', 'phase3'], text: tr('Zvolím os merania, ktorá maximalizuje P = ½(1 + r·n).', 'I can choose the measurement axis that maximises P = ½(1 + r·n).', 'Обираю вісь вимірювання, що максимізує P = ½(1 + r·n).') },
   ],
+  14: [
+    { id: 'tensor', steps: ['intro', 'tensor'], text: tr('Zložím stav dvoch qubitov tenzorovým súčinom |a⟩⊗|b⟩.', 'I can build a two-qubit state with the tensor product |a⟩⊗|b⟩.', 'Складаю стан двох кубітів тензорним добутком |a⟩⊗|b⟩.') },
+    { id: 'growth', steps: ['growth'], text: tr('Viem, že n qubitov má 2ⁿ amplitúd — odtiaľ pochádza sila kvantového počítača.', 'I know that n qubits carry 2ⁿ amplitudes — this is where quantum power comes from.', 'Знаю, що n кубітів несуть 2ⁿ амплітуд — звідси сила квантового комп’ютера.') },
+    { id: 'ghz', steps: ['ghz', 'local'], text: tr('Vysvetlím GHZ reťaz |0…0⟩+|1…1⟩ a ako jedno hradlo zmení celý register.', 'I can explain the GHZ chain |0…0⟩+|1…1⟩ and how one gate reshapes the whole register.', 'Пояснюю ланцюг GHZ |0…0⟩+|1…1⟩ і як один гейт змінює весь регістр.') },
+  ],
+  15: [
+    { id: 'dft', steps: ['intro', 'dft'], text: tr('Vysvetlím, že Fourierova transformácia rozloží signál na frekvencie.', 'I can explain that the Fourier transform splits a signal into frequencies.', 'Пояснюю, що перетворення Фур’є розкладає сигнал на частоти.') },
+    { id: 'qft', steps: ['qft'], text: tr('Prečítam QFT ako hradlá H a riadené fázy, čo prenesú informáciu do báz frekvencií.', 'I read the QFT as H gates and controlled phases that move information into the frequency basis.', 'Читаю QFT як гейти H і керовані фази, що переносять інформацію в базис частот.') },
+    { id: 'period', steps: ['period', 'inverse'], text: tr('Vysvetlím, prečo inverzná QFT odhalí periódu — jadro Shorovho algoritmu.', 'I can explain why the inverse QFT reveals a period — the heart of Shor’s algorithm.', 'Пояснюю, чому обернене QFT виявляє період — серце алгоритму Шора.') },
+  ],
+  16: [
+    { id: 'deutsch', steps: ['intro', 'deutsch'], text: tr('Vysvetlím Deutschov trik: jeden dotaz rozlíši konštantnú od vyváženej funkcie.', 'I can explain Deutsch’s trick: one query tells a constant from a balanced function.', 'Пояснюю трюк Дойча: один запит відрізняє сталу функцію від збалансованої.') },
+    { id: 'bv', steps: ['bv'], text: tr('Vysvetlím, ako Bernstein–Vazirani prečíta skrytý reťazec jediným dotazom.', 'I can explain how Bernstein–Vazirani reads a hidden string in a single query.', 'Пояснюю, як Бернштейн–Вазірані зчитує прихований рядок одним запитом.') },
+    { id: 'grover', steps: ['grover'], text: tr('Opíšem Groverovo zosilnenie amplitúdy: ~√N krokov namiesto N.', 'I can describe Grover’s amplitude amplification: ~√N steps instead of N.', 'Описую підсилення амплітуди Ґровера: ~√N кроків замість N.') },
+    { id: 'shor', steps: ['shor'], text: tr('Vysvetlím, že Shor rozkladá čísla cez hľadanie periódy a QFT.', 'I can explain that Shor factors numbers via period finding and the QFT.', 'Пояснюю, що Шор розкладає числа через пошук періоду і QFT.') },
+  ],
+  17: [
+    { id: 'repeat', steps: ['intro', 'bitflip'], text: tr('Vysvetlím bit-flip kód: jeden logický qubit rozložím do troch fyzických.', 'I can explain the bit-flip code: one logical qubit spread across three physical ones.', 'Пояснюю код bit-flip: один логічний кубіт розподіляю на три фізичні.') },
+    { id: 'phaseflip', steps: ['phaseflip'], text: tr('Vysvetlím, že phase-flip kód je bit-flip kód v báze |+⟩, |−⟩.', 'I can explain that the phase-flip code is the bit-flip code in the |+⟩, |−⟩ basis.', 'Пояснюю, що код phase-flip — це код bit-flip у базисі |+⟩, |−⟩.') },
+    { id: 'syndrome', steps: ['syndrome', 'shor9'], text: tr('Vysvetlím syndrómové meranie: chybu zistím bez kolapsu uloženej informácie.', 'I can explain syndrome measurement: I detect an error without collapsing the stored information.', 'Пояснюю синдромне вимірювання: виявляю помилку, не руйнуючи збережену інформацію.') },
+  ],
+  18: [
+    { id: 'shift', steps: ['intro', 'shift'], text: tr('Vysvetlím chemický posun: okolie jadra mení jeho rezonančnú frekvenciu.', 'I can explain the chemical shift: a nucleus’s surroundings change its resonance frequency.', 'Пояснюю хімічний зсув: оточення ядра змінює його резонансну частоту.') },
+    { id: 'jcoupling', steps: ['jcoupling'], text: tr('Vysvetlím J-väzbu: spiny sa cez kovalentné väzby cítia a tak vzniká dvojqubitové hradlo.', 'I can explain J-coupling: spins feel each other through covalent bonds, giving a two-qubit gate.', 'Пояснюю J-зв’язок: спіни відчувають одне одного через ковалентні зв’язки, даючи двокубітний гейт.') },
+    { id: 'register', steps: ['register', 'spectrum'], text: tr('Vysvetlím, prečo je molekula register qubitov s vlastnými adresami v spektre.', 'I can explain why a molecule is a register of qubits with their own addresses in the spectrum.', 'Пояснюю, чому молекула — регістр кубітів із власними адресами у спектрі.') },
+  ],
+  19: [
+    { id: 'zeromode', steps: ['intro', 'zeromode'], text: tr('Vysvetlím Majoranove nulové módy: polovice elektrónu na koncoch drôtu.', 'I can explain Majorana zero modes: halves of an electron at the ends of a wire.', 'Пояснюю нульові моди Майорани: половинки електрона на кінцях дроту.') },
+    { id: 'topqubit', steps: ['topqubit'], text: tr('Vysvetlím, prečo je topologický qubit uložený nelokálne a odolnejší voči šumu.', 'I can explain why a topological qubit is stored non-locally and is more robust to noise.', 'Пояснюю, чому топологічний кубіт зберігається нелокально й стійкіший до шуму.') },
+    { id: 'braiding', steps: ['braiding', 'anyons'], text: tr('Vysvetlím pletenie (braiding) ako hradlo a prečo na poradí záleží (neabelovské anyóny).', 'I can explain braiding as a gate and why order matters (non-Abelian anyons).', 'Пояснюю плетіння (braiding) як гейт і чому порядок має значення (неабелеві аніони).') },
+  ],
 };
 
 // jazykové pasce na konci levelu → cieľ (index otázky v TRAPS[n], resp. TRAPS_HARD[n])

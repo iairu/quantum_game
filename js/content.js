@@ -116,6 +116,42 @@ const CODEX = [
   { id: 'nutation', level: 12, type: 'pojem', sym: '∿ 0', name: 'kalibrácia impulzu (nutácia)', text: 'Amplitúda FID ∝ sin(γB₁τ). Nula signálu pri preklopení nadol = skutočný 180° impulz; 90° je polovica. Tak sa opraví neznáma chyba B₁.' },
   { id: 'spinecho', level: 12, type: 'pojem', sym: '90° – τ – 180° – τ', name: 'spinové echo (Hahn 1950)', text: '180° impulz v čase τ zrkadlí fázy izochromát rozbehnutých nehomogenitou B₀; v čase 2τ sa znova zložia. Echo obnoví signál až po skutočné T₂.', dont: 'Echo nezvráti skutočnú dekoherenciu T₂ — len statickú nehomogenitu.' },
   { id: 'shim', level: 12, type: 'pojem', sym: '🔧 B₀', name: 'shim', text: 'Prídavné korekčné cievky (shimy) vyrovnávajú nehomogenitu poľa B₀ a predlžujú T₂*. Úplne dokonalé pole sa nedosiahne.' },
+
+  // ---------- Level 14: Reťaz superpozícií (prednáška 7) ----------
+  { id: 'manin', level: 14, type: 'osobnost', sym: '👤', name: 'Jurij Manin (1937–2023)', text: 'Ruský matematik; v knihe z roku 1980 ako jeden z prvých navrhol, že kvantové systémy by mohli počítať nad exponenciálne veľkým stavovým priestorom.' },
+  { id: 'tensorn', level: 14, type: 'symbol', sym: '⊗ⁿ', name: 'register z tenzorových súčinov', text: 'n qubitov skladáme tenzorovým súčinom: |q₁⟩⊗…⊗|qₙ⟩. Bázové stavy registra sú |00…0⟩ … |11…1⟩.', do: 'Lokálne hradlo na jednom qubite pôsobí ako U⊗I⊗… na celý register.', dont: 'Previazaný stav sa vo všeobecnosti NEDÁ zapísať ako jeden tenzorový súčin.' },
+  { id: 'dimgrow', level: 14, type: 'symbol', sym: '2ⁿ', name: 'exponenciálny rast stavu', text: 'n qubitov má 2ⁿ komplexných amplitúd. 300 qubitov má viac amplitúd než je atómov vo vesmíre — zdroj kvantovej sily.', dont: 'Neznamená to 2ⁿ paralelných svetov, ktoré by sa dali naraz prečítať — meranie dá len n bitov.' },
+  { id: 'ghz', level: 14, type: 'pojem', sym: 'GHZ', name: 'GHZ reťaz', text: '(|00…0⟩ + |11…1⟩)/√2: maximálne previazaná reťaz. Jediné meranie jedného qubitu určí všetky ostatné.', dont: 'Nie je to zmes — kým nezmeriaš, žiadny qubit nemá určenú hodnotu.' },
+
+  // ---------- Level 15: Fourierova veža (prednáška 7) ----------
+  { id: 'fourierp', level: 15, type: 'osobnost', sym: '👤', name: 'Joseph Fourier (1768–1830)', text: 'Francúzsky matematik a fyzik; ukázal, že ľubovoľný signál sa dá rozložiť na súčet harmonických vĺn. Kvantová verzia jeho transformácie je jadrom Shorovho algoritmu.' },
+  { id: 'dft', level: 15, type: 'symbol', sym: 'DFT', name: 'diskrétna Fourierova transformácia', text: 'Prevedie postupnosť vzoriek na jej frekvencie: X<sub>k</sub> = Σ<sub>j</sub> x<sub>j</sub> e<sup>−2πijk/N</sup>. Odhalí skrytú periodicitu signálu.' },
+  { id: 'qft', level: 15, type: 'symbol', sym: 'QFT', name: 'kvantová Fourierova transformácia', text: 'DFT vykonaná na amplitúdach registra pomocou hradiel H a riadených fáz. Na n qubitoch stačí ~n² hradiel namiesto N log N operácií.', dont: 'QFT sama nič nemeria — výsledok (periódu) odhalí až meranie po inverznej QFT.' },
+  { id: 'periodfind', level: 15, type: 'pojem', sym: 'r: f(x+r)=f(x)', name: 'hľadanie periódy', text: 'Mnohé ťažké úlohy (napr. faktorizácia) sa dajú previesť na nájdenie periódy funkcie. QFT premení periódu na ostrý vrchol v báze frekvencií.' },
+
+  // ---------- Level 16: Sieň algoritmov (prednáška 7) ----------
+  { id: 'deutschp', level: 16, type: 'osobnost', sym: '👤', name: 'David Deutsch (* 1953)', text: 'Britský fyzik; v roku 1985 opísal univerzálny kvantový počítač a prvý algoritmus s kvantovou výhodou (Deutschov problém).' },
+  { id: 'oracle', level: 16, type: 'pojem', sym: 'U<sub>f</sub>', name: 'orákulum a fázový spätný ráz', text: 'Funkciu f skryjeme do unitárneho U<sub>f</sub>. „Fázový spätný ráz“ zapíše odpoveď do fázy amplitúdy — Deutsch aj Bernstein–Vazirani ju prečítajú interferenciou na jediný dotaz.', dont: 'Kvantová výhoda nie je v „skúšaní všetkých vstupov naraz“, ale v interferencii fáz.' },
+  { id: 'grover', level: 16, type: 'symbol', sym: '~√N', name: 'Groverovo hľadanie', text: 'Hľadanie v neutriedenej databáze N položiek: zosilňovaním amplitúdy správnej odpovede stačí ~√N krokov namiesto N. Kvadratické zrýchlenie.', dont: 'Nie je to exponenciálne zrýchlenie — a priveľa iterácií amplitúdu zase zníži.' },
+  { id: 'shoralg', level: 16, type: 'symbol', sym: 'N = p·q', name: 'Shorov algoritmus', text: 'Rozklad veľkého čísla na prvočísla prevedie na hľadanie periódy a vyrieši ju QFT — exponenciálne rýchlejšie než známe klasické metódy. Ohrozuje šifru RSA.', dont: 'Nelúšti „všetky šifry“ — len tie postavené na faktorizácii a diskrétnom logaritme.' },
+
+  // ---------- Level 17: Štít korekcie chýb (prednáška 7) ----------
+  { id: 'shorp', level: 17, type: 'osobnost', sym: '👤', name: 'Peter Shor (* 1959)', text: 'Americký matematik; okrem faktorizačného algoritmu (1994) navrhol aj prvý kód na kvantovú korekciu chýb (1995) — 9-qubitový kód.' },
+  { id: 'bitflip', level: 17, type: 'pojem', sym: '|0⟩→|000⟩', name: 'bit-flip kód', text: 'Jeden logický qubit zakódujeme do troch: |0⟩→|000⟩, |1⟩→|111⟩. Jedno preklopenie bitu odhalí a opraví hlasovanie väčšiny.', dont: 'Qubit sa nedá kopírovať (no-cloning) — kóduje sa previazaním, nie kopírovaním stavu.' },
+  { id: 'phaseflipc', level: 17, type: 'pojem', sym: '|+⟩→|+++⟩', name: 'phase-flip kód', text: 'Chyba fázy (Z) je chyba bitu v báze |+⟩, |−⟩. Hadamardmi prejdeme do tejto bázy a použijeme ten istý trik. Shorov 9-qubitový kód skombinuje oba.' },
+  { id: 'syndrome', level: 17, type: 'pojem', sym: 'ZZ, XX', name: 'syndrómové meranie', text: 'Zmeriame parity (napr. Z₁Z₂) pomocných qubitov: zistíme, ČI a KDE nastala chyba, bez toho, aby sme zmerali — a tým zničili — uloženú informáciu.', dont: 'Priame meranie dátového qubitu by ho skolabovalo; preto meriame len parity.' },
+
+  // ---------- Level 18: Chemická kúria NMR (prednáška 7) ----------
+  { id: 'pauling', level: 18, type: 'osobnost', sym: '👤', name: 'Linus Pauling (1901–1994)', text: 'Americký chemik; objasnil povahu chemickej väzby (Nobelova cena 1954). Práve kovalentné väzby sprostredkúvajú J-väzbu medzi jadrami v molekulovom NMR počítači.' },
+  { id: 'cshift', level: 18, type: 'symbol', sym: 'δ (ppm)', name: 'chemický posun', text: 'Elektróny okolo jadra čiastočne tienia pole B₀, takže každé jadro v molekule rezonuje na mierne inej frekvencii. Vďaka tomu je každé samostatne adresovateľným qubitom.', dont: 'Rôzne frekvencie nevznikajú z rôznych jadier toho istého druhu „samých osebe“ — robí to ich chemické okolie.' },
+  { id: 'jcoupling', level: 18, type: 'symbol', sym: 'J', name: 'J-väzba (spin-spinová)', text: 'Spiny dvoch jadier sa „cítia“ cez zdieľané elektróny kovalentnej väzby. Toto prepojenie je prirodzené dvojqubitové hradlo (napr. riadené fázové).', dont: 'J-väzba ide cez väzby molekuly, nie priamo priestorom (to je dipólová väzba).' },
+  { id: 'molreg', level: 18, type: 'pojem', sym: '🧪→🧮', name: 'molekula ako register', text: 'Malá molekula (napr. chloroform, alanín) sa stáva registrom qubitov: jadrá sú qubity, chemický posun ich adresuje, J-väzba ich prepája. Tak bežali prvé Shorove demonštrácie.', dont: 'Pracuje sa s miliardami molekúl naraz (pseudo-čistý stav), nie s jednou.' },
+
+  // ---------- Level 19: Majoranov maják (prednáška 7) ----------
+  { id: 'majoranap', level: 19, type: 'osobnost', sym: '👤', name: 'Ettore Majorana (1906–?)', text: 'Taliansky fyzik; v roku 1937 opísal časticu, ktorá je vlastnou antičasticou. V roku 1938 záhadne zmizol. Jeho „fermióny“ sú dnes nádejou topologických qubitov.' },
+  { id: 'zeromode', level: 19, type: 'pojem', sym: 'γ', name: 'Majoranov nulový mód', text: 'Elektrón sa v špeciálnom nanodrôte „rozdelí“ na dve polovice (nulové módy) na jeho koncoch. Jeden qubit je uložený nelokálne v oboch naraz.', dont: 'Majoranov mód nie je bežná častica, ktorú by sa dalo lokálne „chytiť“ a zmerať.' },
+  { id: 'topqubit', level: 19, type: 'pojem', sym: '🛡', name: 'topologický qubit', text: 'Keďže informácia je uložená nelokálne, lokálny šum ju nedokáže ľahko pokaziť — ochrana pred chybami je „zabudovaná“ v topológii.', dont: 'Ochrana nie je dokonalá a takéto qubity sa zatiaľ len experimentálne overujú.' },
+  { id: 'braiding', level: 19, type: 'symbol', sym: '⤭', name: 'pletenie (braiding)', text: 'Hradlá sa robia zámenou polôh Majoran — ich „pletením“. Výsledok závisí od poradia (neabelovské anyóny), preto vznikne robustná operácia.', dont: 'Pri bežných časticiach (fermiónoch, bozónoch) na poradí zámeny nezáleží — tu áno.' },
 ];
 
 // Jazykové pasce: na konci každého levelu (správne formulácie vs. časté omyly)
@@ -288,6 +324,36 @@ const CODEX_EN = {
   nutation: { name: 'pulse calibration (nutation)', text: 'The FID amplitude ∝ sin(γB₁τ). The signal null with the magnetisation flipped down = the true 180° pulse; 90° is half of it. This corrects an unknown error in B₁.' },
   spinecho: { name: 'spin echo (Hahn 1950)', text: 'A 180° pulse at time τ mirrors the phases of the isochromats fanned out by the inhomogeneity of B₀; at time 2τ they recombine. The echo restores the signal up to the true T₂.', dont: 'An echo does not undo true T₂ decoherence — only static inhomogeneity.' },
   shim: { name: 'shim', text: 'Extra correction coils (shims) even out the inhomogeneity of the field B₀ and lengthen T₂*. A perfectly uniform field is never reached.' },
+
+  manin: { name: 'Yuri Manin (1937–2023)', text: 'Russian mathematician; in a 1980 book he was among the first to suggest that quantum systems could compute over an exponentially large state space.' },
+  tensorn: { name: 'a register from tensor products', text: 'We build n qubits with the tensor product: |q₁⟩⊗…⊗|qₙ⟩. The register’s basis states run |00…0⟩ … |11…1⟩.', do: 'A local gate on one qubit acts as U⊗I⊗… on the whole register.', dont: 'An entangled state generally CANNOT be written as a single tensor product.' },
+  dimgrow: { name: 'exponential growth of state', text: 'n qubits carry 2ⁿ complex amplitudes. 300 qubits hold more amplitudes than there are atoms in the universe — the source of quantum power.', dont: 'This is not 2ⁿ parallel worlds you can read all at once — a measurement gives only n bits.' },
+  ghz: { name: 'the GHZ chain', text: '(|00…0⟩ + |11…1⟩)/√2: a maximally entangled chain. A single measurement of one qubit fixes all the others.', dont: 'It is not a mixture — until you measure, no qubit has a definite value.' },
+
+  fourierp: { name: 'Joseph Fourier (1768–1830)', text: 'French mathematician and physicist; he showed that any signal can be decomposed into a sum of harmonic waves. The quantum version of his transform is the heart of Shor’s algorithm.' },
+  dft: { name: 'the discrete Fourier transform', text: 'Turns a sequence of samples into its frequencies: X<sub>k</sub> = Σ<sub>j</sub> x<sub>j</sub> e<sup>−2πijk/N</sup>. It reveals hidden periodicity in a signal.' },
+  qft: { name: 'the quantum Fourier transform', text: 'The DFT performed on a register’s amplitudes using H gates and controlled phases. On n qubits it needs ~n² gates instead of N log N operations.', dont: 'The QFT measures nothing by itself — the result (a period) is revealed only by a measurement after the inverse QFT.' },
+  periodfind: { name: 'period finding', text: 'Many hard problems (e.g. factoring) reduce to finding the period of a function. The QFT turns that period into a sharp peak in the frequency basis.' },
+
+  deutschp: { name: 'David Deutsch (b. 1953)', text: 'British physicist; in 1985 he described a universal quantum computer and the first algorithm with a quantum advantage (Deutsch’s problem).' },
+  oracle: { name: 'the oracle and phase kickback', text: 'A function f is hidden inside a unitary U<sub>f</sub>. “Phase kickback” writes the answer into the phase of an amplitude — Deutsch and Bernstein–Vazirani both read it by interference in a single query.', dont: 'The quantum advantage is not “trying all inputs at once”, but the interference of phases.' },
+  grover: { name: 'Grover search', text: 'Searching an unsorted database of N items: by amplifying the amplitude of the right answer, only ~√N steps are needed instead of N. A quadratic speed-up.', dont: 'It is not an exponential speed-up — and too many iterations lower the amplitude again.' },
+  shoralg: { name: 'Shor’s algorithm', text: 'Factoring a large number reduces to period finding, which the QFT solves — exponentially faster than any known classical method. It threatens the RSA cipher.', dont: 'It does not break “all ciphers” — only those built on factoring and the discrete logarithm.' },
+
+  shorp: { name: 'Peter Shor (b. 1959)', text: 'American mathematician; besides the factoring algorithm (1994) he proposed the first quantum error-correcting code (1995) — a 9-qubit code.' },
+  bitflip: { name: 'the bit-flip code', text: 'We encode one logical qubit into three: |0⟩→|000⟩, |1⟩→|111⟩. A single bit flip is detected and fixed by majority vote.', dont: 'A qubit cannot be copied (no-cloning) — it is encoded by entanglement, not by copying the state.' },
+  phaseflipc: { name: 'the phase-flip code', text: 'A phase (Z) error is a bit error in the |+⟩, |−⟩ basis. We move to that basis with Hadamards and use the same trick. Shor’s 9-qubit code combines both.' },
+  syndrome: { name: 'syndrome measurement', text: 'We measure parities (e.g. Z₁Z₂) of helper qubits: this tells us WHETHER and WHERE an error occurred without measuring — and so destroying — the stored information.', dont: 'Measuring the data qubit directly would collapse it; that is why we measure only parities.' },
+
+  pauling: { name: 'Linus Pauling (1901–1994)', text: 'American chemist; he explained the nature of the chemical bond (Nobel Prize 1954). It is the covalent bonds that mediate the J-coupling between nuclei in a molecular NMR computer.' },
+  cshift: { name: 'the chemical shift', text: 'Electrons around a nucleus partly shield the field B₀, so each nucleus in a molecule resonates at a slightly different frequency. This makes each a separately addressable qubit.', dont: 'The different frequencies do not come from the nuclei of the same kind “by themselves” — their chemical surroundings do it.' },
+  jcoupling: { name: 'J-coupling (spin–spin)', text: 'The spins of two nuclei “feel” each other through the shared electrons of a covalent bond. This link is a natural two-qubit gate (e.g. a controlled phase).', dont: 'J-coupling runs through the molecule’s bonds, not directly through space (that is dipolar coupling).' },
+  molreg: { name: 'a molecule as a register', text: 'A small molecule (e.g. chloroform, alanine) becomes a register of qubits: the nuclei are qubits, the chemical shift addresses them, J-coupling links them. This is how the first Shor demonstrations ran.', dont: 'One works with billions of molecules at once (a pseudo-pure state), not a single one.' },
+
+  majoranap: { name: 'Ettore Majorana (1906–?)', text: 'Italian physicist; in 1937 he described a particle that is its own antiparticle. In 1938 he mysteriously vanished. His “fermions” are today a hope for topological qubits.' },
+  zeromode: { name: 'the Majorana zero mode', text: 'In a special nanowire an electron “splits” into two halves (zero modes) at its ends. One qubit is stored non-locally in both at once.', dont: 'A Majorana mode is not an ordinary particle you could locally “catch” and measure.' },
+  topqubit: { name: 'the topological qubit', text: 'Because the information is stored non-locally, local noise cannot easily corrupt it — error protection is “built in” to the topology.', dont: 'The protection is not perfect, and such qubits are still only being verified experimentally.' },
+  braiding: { name: 'braiding', text: 'Gates are made by swapping the positions of Majoranas — by “braiding” them. The result depends on the order (non-Abelian anyons), which yields a robust operation.', dont: 'For ordinary particles (fermions, bosons) the order of a swap does not matter — here it does.' },
 };
 const CODEX_UK = {
   euler: { name: 'Леонард Ейлер (1707–1783)', text: 'Швейцарський математик; запровадив позначення e, i, f(x), Σ. Його формула пов’язує експоненту з косинусом і синусом — сьогодні це «мова фази» в квантовій механіці.' },
@@ -390,6 +456,36 @@ const CODEX_UK = {
   nutation: { name: 'калібрування імпульсу (нутація)', text: 'Амплітуда FID ∝ sin(γB₁τ). Нуль сигналу з перевернутою вниз намагніченістю = справжній 180° імпульс; 90° — половина. Так виправляють невідому похибку B₁.' },
   spinecho: { name: 'спінове відлуння (Ган, 1950)', text: '180° імпульс у момент τ віддзеркалює фази ізохромат, що розійшлися через неоднорідність B₀; у момент 2τ вони знову сходяться. Відлуння відновлює сигнал аж до справжнього T₂.', dont: 'Відлуння не скасовує справжньої декогеренції T₂ — лише статичну неоднорідність.' },
   shim: { name: 'шим', text: 'Додаткові коригувальні котушки (шими) вирівнюють неоднорідність поля B₀ і подовжують T₂*. Ідеально однорідного поля не досягають.' },
+
+  manin: { name: 'Юрій Манін (1937–2023)', text: 'Російський математик; у книзі 1980 року одним із перших припустив, що квантові системи могли б обчислювати над експоненційно великим простором станів.' },
+  tensorn: { name: 'регістр із тензорних добутків', text: 'n кубітів складаємо тензорним добутком: |q₁⟩⊗…⊗|qₙ⟩. Базові стани регістра — |00…0⟩ … |11…1⟩.', do: 'Локальний гейт на одному кубіті діє як U⊗I⊗… на весь регістр.', dont: 'Сплутаний стан загалом НЕ можна записати як один тензорний добуток.' },
+  dimgrow: { name: 'експоненційне зростання стану', text: 'n кубітів несуть 2ⁿ комплексних амплітуд. 300 кубітів мають більше амплітуд, ніж атомів у Всесвіті — джерело квантової сили.', dont: 'Це не 2ⁿ паралельних світів, які можна прочитати відразу — вимірювання дає лише n бітів.' },
+  ghz: { name: 'ланцюг GHZ', text: '(|00…0⟩ + |11…1⟩)/√2: максимально сплутаний ланцюг. Одне вимірювання одного кубіта визначає всі інші.', dont: 'Це не суміш — поки не виміряєш, жоден кубіт не має визначеного значення.' },
+
+  fourierp: { name: 'Жозеф Фур’є (1768–1830)', text: 'Французький математик і фізик; показав, що будь-який сигнал можна розкласти на суму гармонічних хвиль. Квантова версія його перетворення — серце алгоритму Шора.' },
+  dft: { name: 'дискретне перетворення Фур’є', text: 'Перетворює послідовність відліків на її частоти: X<sub>k</sub> = Σ<sub>j</sub> x<sub>j</sub> e<sup>−2πijk/N</sup>. Виявляє приховану періодичність сигналу.' },
+  qft: { name: 'квантове перетворення Фур’є', text: 'DFT, виконане над амплітудами регістра за допомогою гейтів H і керованих фаз. На n кубітах потрібно ~n² гейтів замість N log N операцій.', dont: 'QFT саме нічого не вимірює — результат (період) виявляє лише вимірювання після оберненого QFT.' },
+  periodfind: { name: 'пошук періоду', text: 'Багато складних задач (напр. факторизація) зводяться до пошуку періоду функції. QFT перетворює цей період на гострий пік у базисі частот.' },
+
+  deutschp: { name: 'Девід Дойч (нар. 1953)', text: 'Британський фізик; у 1985 році описав універсальний квантовий комп’ютер і перший алгоритм із квантовою перевагою (задача Дойча).' },
+  oracle: { name: 'оракул і фазовий відкат', text: 'Функцію f ховаємо в унітарний U<sub>f</sub>. «Фазовий відкат» записує відповідь у фазу амплітуди — і Дойч, і Бернштейн–Вазірані читають її інтерференцією за один запит.', dont: 'Квантова перевага — не в «переборі всіх входів відразу», а в інтерференції фаз.' },
+  grover: { name: 'пошук Ґровера', text: 'Пошук у невпорядкованій базі з N елементів: підсилюючи амплітуду правильної відповіді, потрібно лише ~√N кроків замість N. Квадратичне прискорення.', dont: 'Це не експоненційне прискорення — а забагато ітерацій знову знижує амплітуду.' },
+  shoralg: { name: 'алгоритм Шора', text: 'Факторизація великого числа зводиться до пошуку періоду, який розв’язує QFT — експоненційно швидше за будь-який відомий класичний метод. Загрожує шифру RSA.', dont: 'Він не зламує «всі шифри» — лише ті, що побудовані на факторизації та дискретному логарифмі.' },
+
+  shorp: { name: 'Пітер Шор (нар. 1959)', text: 'Американський математик; окрім алгоритму факторизації (1994) запропонував і перший код квантової корекції помилок (1995) — 9-кубітний код.' },
+  bitflip: { name: 'код bit-flip', text: 'Один логічний кубіт кодуємо в три: |0⟩→|000⟩, |1⟩→|111⟩. Один переворот біта виявляє й виправляє голосування більшості.', dont: 'Кубіт не можна копіювати (no-cloning) — він кодується сплутаністю, а не копіюванням стану.' },
+  phaseflipc: { name: 'код phase-flip', text: 'Помилка фази (Z) — це помилка біта в базисі |+⟩, |−⟩. Гейтами Адамара переходимо в цей базис і застосовуємо той самий трюк. 9-кубітний код Шора поєднує обидва.' },
+  syndrome: { name: 'синдромне вимірювання', text: 'Вимірюємо парності (напр. Z₁Z₂) допоміжних кубітів: дізнаємося, ЧИ і ДЕ сталася помилка, не вимірюючи — а отже не руйнуючи — збережену інформацію.', dont: 'Пряме вимірювання кубіта даних зколапсувало б його; тому вимірюємо лише парності.' },
+
+  pauling: { name: 'Лайнус Полінг (1901–1994)', text: 'Американський хімік; пояснив природу хімічного зв’язку (Нобелівська премія 1954). Саме ковалентні зв’язки опосередковують J-зв’язок між ядрами в молекулярному ЯМР-комп’ютері.' },
+  cshift: { name: 'хімічний зсув', text: 'Електрони навколо ядра частково екранують поле B₀, тож кожне ядро в молекулі резонує на дещо іншій частоті. Завдяки цьому кожне стає окремо адресовним кубітом.', dont: 'Різні частоти не виникають у ядер того самого типу «самі собою» — це робить їхнє хімічне оточення.' },
+  jcoupling: { name: 'J-зв’язок (спін-спіновий)', text: 'Спіни двох ядер «відчувають» одне одного через спільні електрони ковалентного зв’язку. Цей зв’язок — природний двокубітний гейт (напр. керована фаза).', dont: 'J-зв’язок іде через зв’язки молекули, а не прямо крізь простір (це дипольний зв’язок).' },
+  molreg: { name: 'молекула як регістр', text: 'Мала молекула (напр. хлороформ, аланін) стає регістром кубітів: ядра — кубіти, хімічний зсув їх адресує, J-зв’язок їх поєднує. Саме так працювали перші демонстрації Шора.', dont: 'Працюють із мільярдами молекул одночасно (псевдочистий стан), а не з однією.' },
+
+  majoranap: { name: 'Етторе Майорана (1906–?)', text: 'Італійський фізик; у 1937 році описав частинку, що є власною античастинкою. У 1938 році загадково зник. Його «ферміони» сьогодні — надія топологічних кубітів.' },
+  zeromode: { name: 'нульова мода Майорани', text: 'У спеціальному нанодроті електрон «розділяється» на дві половини (нульові моди) на його кінцях. Один кубіт зберігається нелокально в обох одразу.', dont: 'Мода Майорани — не звичайна частинка, яку можна локально «спіймати» й виміряти.' },
+  topqubit: { name: 'топологічний кубіт', text: 'Оскільки інформація зберігається нелокально, локальний шум не може легко її пошкодити — захист від помилок «вбудований» у топологію.', dont: 'Захист не ідеальний, і такі кубіти поки лише експериментально перевіряють.' },
+  braiding: { name: 'плетіння (braiding)', text: 'Гейти роблять, міняючи місцями Майорани — «сплітаючи» їх. Результат залежить від порядку (неабелеві аніони), що дає стійку операцію.', dont: 'Для звичайних частинок (ферміонів, бозонів) порядок обміну не має значення — тут має.' },
 };
 const CODEX_TR = tr(null, CODEX_EN, CODEX_UK);
 if (CODEX_TR) for (const c of CODEX) {

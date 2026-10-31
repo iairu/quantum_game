@@ -83,6 +83,12 @@ const BOSS_LOOT = {
   11: { slot: 'head', icon: '🎲', name: tr('Bornova kapucňa merania', 'Born’s Hood of Readout', 'Борнів каптур вимірювання'), hat: 'hood' },
   12: { slot: 'trinket', icon: '🧪', name: tr('Purcellova ladička rezonancie', 'Purcell’s Resonance Fork', 'Перселлів камертон резонансу') },
   13: { slot: 'weapon', icon: '🐉', name: tr('Ketvarrov zub', 'Fang of Ketvarr', 'Ікло Кетварра') },
+  14: { slot: 'trinket', icon: '🪢', name: tr('Maninov uzol stavov', 'Manin’s Knot of States', 'Манінів вузол станів') },
+  15: { slot: 'weapon', icon: '🌊', name: tr('Fourierova ladička frekvencií', 'Fourier’s Tuning Fork of Frequencies', 'Камертон частот Фур’є') },
+  16: { slot: 'trinket', icon: '⚙', name: tr('Deutschovo orákulum', 'Deutsch’s Oracle', 'Оракул Дойча') },
+  17: { slot: 'chest', icon: '🛡', name: tr('Shorovo rúcho syndrómov', 'Shor’s Robe of Syndromes', 'Шорова мантія синдромів'), robe: [0.4, 0.75, 0.9] },
+  18: { slot: 'head', icon: '🧪', name: tr('Paulingova koruna väzieb', 'Pauling’s Crown of Bonds', 'Полінгова корона зв’язків'), hat: 'circlet' },
+  19: { slot: 'weapon', icon: '🔶', name: tr('Majoranova pletená palica', 'Majorana’s Braided Rod', 'Плетений жезл Майорани') },
 };
 const BOSSES = {
   1: { icon: '➕', name: tr('Sčítač pravdepodobností', 'The Probability Adder', 'Додавач імовірностей'), tip: tr('Sčítava pravdepodobnosti namiesto amplitúd — a interferencia mu uniká.', 'Adds probabilities instead of amplitudes — and so misses interference.', 'Додає ймовірності замість амплітуд — і тому пропускає інтерференцію.') },
@@ -98,6 +104,12 @@ const BOSSES = {
   11: { icon: '📖', name: tr('Pasívny čitateľ', 'The Passive Reader', 'Пасивний читач'), tip: tr('Verí, že meranie len prečíta hodnotu, ktorá tam už bola.', 'Believes a measurement just reads a value that was already there.', 'Вірить, що вимірювання лише зчитує значення, яке вже було.') },
   12: { icon: '🌫', name: tr('Nehomogénny fantóm', 'The Inhomogeneous Phantom', 'Неоднорідний фантом'), tip: tr('Rozmazáva B₀, aby FID zhaslo skôr, než ho zmeriaš.', 'Smears B₀ so the FID dies before you can measure it.', 'Розмазує B₀, щоб FID згас раніше, ніж ти його виміряєш.') },
   13: { icon: '🐉', name: tr('Ketvarr', 'Ketvarr', 'Кетварр'), tip: tr('Kvantový drak. Jeho štít je qubit.', 'The quantum dragon. His ward is a qubit.', 'Квантовий дракон. Його захист — кубіт.') },
+  14: { icon: '🪢', name: tr('Tkáč zapletených stavov', 'Weaver of Tangled States', 'Ткач заплутаних станів'), tip: tr('Verí, že dva qubity opíše dvoma šípkami namiesto tenzorového súčinu.', 'Thinks two qubits are described by two arrows instead of a tensor product.', 'Гадає, що два кубіти описуються двома стрілками замість тензорного добутку.') },
+  15: { icon: '🌊', name: tr('Rozladený harmonik', 'The Detuned Harmonic', 'Розстроєний гармонік'), tip: tr('Zamieňa amplitúdu signálu za jeho frekvenciu.', 'Confuses a signal’s amplitude with its frequency.', 'Плутає амплітуду сигналу з його частотою.') },
+  16: { icon: '⚙', name: tr('Veštec zbytočných dotazov', 'Oracle of Wasted Queries', 'Віщун зайвих запитів'), tip: tr('Pýta sa orákula klasicky, bod po bode, a interferenciu ignoruje.', 'Queries the oracle classically, point by point, ignoring interference.', 'Опитує оракул класично, точка за точкою, ігноруючи інтерференцію.') },
+  17: { icon: '🛡', name: tr('Rozsievač tichých chýb', 'Sower of Silent Errors', 'Сіяч тихих помилок'), tip: tr('Verí, že qubit sa nedá opraviť, lebo meranie ho pokazí.', 'Believes a qubit cannot be fixed because measuring it destroys it.', 'Вірить, що кубіт не можна виправити, бо вимірювання його руйнує.') },
+  18: { icon: '🧪', name: tr('Zmätený spektroskop', 'The Muddled Spectroscope', 'Спантеличений спектроскоп'), tip: tr('Nevie rozlíšiť jadrá v molekule, hoci majú rôzny chemický posun.', 'Cannot tell the nuclei in a molecule apart, though their chemical shifts differ.', 'Не може розрізнити ядра в молекулі, хоча їхні хімічні зсуви різні.') },
+  19: { icon: '🔶', name: tr('Rušiteľ pletenca', 'The Braid-Breaker', 'Руйнівник плетива'), tip: tr('Myslí si, že na poradí pletenia Majoran nezáleží.', 'Thinks the order of braiding Majoranas does not matter.', 'Думає, що порядок плетіння Майоран не має значення.') },
 };
 
 // kúzla: id, kláves, ikona, úroveň, čas zosielania, mana, dosah, cooldown, poškodenie

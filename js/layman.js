@@ -315,7 +315,12 @@ const LAYMAN_LEVEL_TIPS = tr({
   10: 'Dá sa z rozmazaného qubitu urobiť ostrý? Otáčaním nie — treba sa pozrieť alebo ochladiť.',
   11: 'Meranie nie je len prečítanie výsledku — je to súčasť výpočtu.',
   12: '🧪 Skutočný NMR prístroj: nalaď rádio, pošli prúd do cievky a vypočuj si, čo spiny „odpovedia“.',
-  13: '🐉 Súboj s drakom: natoč šípku jeho štítu k zlatej a udri.',
+  14: 'Viac qubitov spolu: každý ďalší qubit zdvojnásobí počet možností — tak vzniká sila kvantového počítača.',
+  15: 'Kvantová obdoba rozkladu zvuku na tóny: počítač nájde skrytý rytmus čísel.',
+  16: 'Slávne kvantové triky: ako nájsť odpoveď na menej otázok než klasický počítač.',
+  17: 'Ako qubit ochrániť pred chybami: rozložíme jeden qubit do viacerých a chybu zbadáme bez pokazenia dát.',
+  18: 'Prečo je molekula malý kvantový počítač: každé jadro v nej má inú „rádiovú adresu“.',
+  19: 'Exotické častice na koncoch drôtu, ktoré si „pamätajú“ poradie — a tým samy opravujú chyby.',
 }, {
   1: 'Arrows on answers: length = chance, direction = timing. How arrows team up or cancel.',
   2: 'Atoms as tiny magnets: always just “up” or “down” — the first qubit.',
@@ -329,7 +334,12 @@ const LAYMAN_LEVEL_TIPS = tr({
   10: 'Can a blurry qubit be made sharp? Not by turning it — you have to look or cool it down.',
   11: 'Measuring is not just reading the result — it is part of the computation.',
   12: '🧪 A real NMR machine: tune the radio, send current into the coil and listen to what the spins “answer”.',
-  13: '🐉 The dragon battle: turn his ward’s arrow towards the golden one and strike.',
+  14: 'Many qubits together: each extra qubit doubles the possibilities — that is where a quantum computer’s power comes from.',
+  15: 'The quantum cousin of splitting a sound into its tones: the computer finds the hidden rhythm in numbers.',
+  16: 'Famous quantum tricks: how to find an answer with fewer questions than a classical computer.',
+  17: 'How to protect a qubit from errors: spread one qubit across several and spot a mistake without spoiling the data.',
+  18: 'Why a molecule is a tiny quantum computer: each nucleus in it has its own “radio address”.',
+  19: 'Exotic particles at the ends of a wire that “remember” their order — and so fix their own errors.',
 }, {
   1: 'Стрілки на відповідях: довжина = шанс, напрямок = час. Як стрілки об’єднуються або гасяться.',
   2: 'Атоми як крихітні магніти: завжди лише «угору» або «вниз» — перший кубіт.',
@@ -343,7 +353,12 @@ const LAYMAN_LEVEL_TIPS = tr({
   10: 'Чи можна з розмитого кубіта зробити чіткий? Обертанням — ні, треба подивитися або охолодити.',
   11: 'Вимірювання — не просто зчитування результату, а частина обчислення.',
   12: '🧪 Справжній ЯМР-прилад: налаштуй радіо, подай струм у котушку й послухай, що «відповідають» спіни.',
-  13: '🐉 Битва з драконом: поверни стрілку його захисту до золотої й бий.',
+  14: 'Багато кубітів разом: кожен додатковий кубіт подвоює кількість можливостей — звідси й сила квантового комп’ютера.',
+  15: 'Квантовий родич розкладання звуку на тони: комп’ютер знаходить прихований ритм у числах.',
+  16: 'Відомі квантові трюки: як знайти відповідь, поставивши менше запитань, ніж класичний комп’ютер.',
+  17: 'Як захистити кубіт від помилок: розподілимо один кубіт на кілька й помітимо помилку, не псуючи даних.',
+  18: 'Чому молекула — крихітний квантовий комп’ютер: кожне ядро в ній має власну «радіоадресу».',
+  19: 'Екзотичні частинки на кінцях дроту, що «пам’ятають» свій порядок — і так самі виправляють помилки.',
 });
 
 // úvod sprievodkyne bežnou rečou (zobrazí sa pri prvom stretnutí v laickej obťažnosti alebo po jej zapnutí)

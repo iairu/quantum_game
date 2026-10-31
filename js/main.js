@@ -684,6 +684,70 @@ const PortalArt = {
         [0.5 + 0.5 * Math.sin(t * 2), 0.5 - 0.5 * Math.sin(t * 2)].forEach((h, k) => r.draw('cylinder', M4.trs(P(0.45 + k * 0.4, -0.7), 0, [0.12, 0.1 + h * 1.2, 0.12]), g(k ? [1, 0.45, 0.45] : [0.45, 0.65, 1]), E)); break;
       }
       case 13: { const fl = 0.5 + 0.5 * Math.sin(t * 5); r.sphere(P(0, 0.2), 0.35, g([1, 0.42, 0.15]), { emissive: open ? 0.5 + fl * 0.5 : 0 }); for (const s of [-1, 1]) r.sphere(P(s * 0.14, 0.32, 0.3), 0.06, g([1, 0.9, 0.2]), E); break; }
+      case 14: { // reťaz qubitov: každý v superpozícii, spojené väzbami
+        for (let i = 0; i < 3; i++) {
+          const x = -0.7 + i * 0.7, p = P(x, 0);
+          if (i) r.rod(P(x - 0.7, 0), p, g([0.5, 0.82, 0.72]), 0.025, E);
+          r.sphere(p, 0.25, g([0.4, 0.55, 1]), { alpha: open ? 0.16 : 0.08 });
+          r.draw('circle', M4.orient(p, d, 0.25), g([0.55, 0.75, 1]), { alpha: 0.55 });
+          const a = t * 1.1 + i * 0.8, v = V3.norm([Math.cos(a) * 0.95, 0.18 + 0.22 * Math.sin(t * 0.9 + i), Math.sin(a) * 0.95]);
+          r.arrow(p, V3.add(p, V3.scale(v, 0.25)), g([1, 0.85, 0.35]), 0.028, E);
+        }
+        break;
+      }
+      case 15: { // Fourierova veža: signál v čase dole, spektrum hore
+        for (let i = 0; i < 9; i++) {
+          const x = -0.8 + i * 0.2, h = 0.14 + 0.38 * (0.5 + 0.5 * Math.sin(i * 0.75 + t * 1.6));
+          r.draw('box', M4.trs(P(x, -0.75 + h / 2), yaw, [0.11, h, 0.11]), g([0.3, 0.7, 1]), { emissive: open ? 0.2 : 0 });
+          const peak = i === 2 || i === 6, sh = peak ? 0.52 : 0.07 + 0.03 * Math.sin(t * 2 + i);
+          r.draw('box', M4.trs(P(x, 0.12 + sh / 2), yaw, [0.11, sh, 0.11]), g(peak ? [1, 0.6, 0.2] : [0.5, 0.4, 0.3]), { emissive: open ? (peak ? 0.6 : 0.05) : 0 });
+        }
+        break;
+      }
+      case 16: { // sieň algoritmov: štyri orákulové stanice, jedna práve svieti
+        const on = Math.floor(t * 0.9) % 4;
+        for (let i = 0; i < 4; i++) {
+          const a = i / 4 * Math.PI * 2 + Math.PI / 4, p = P(Math.cos(a) * 0.82, Math.sin(a) * 0.82), active = i === on;
+          r.draw('box', M4.trs(p, yaw, [0.32, 0.32, 0.32]), g(active ? [1, 0.85, 0.35] : [0.8, 0.5, 1]), { emissive: open ? (active ? 0.75 : 0.12) : 0 });
+          if (active) { r.rod(c, p, g([0.6, 1, 0.8]), 0.018, E); r.sphere(p, 0.07, g([0.75, 1, 0.85]), E); }
+        }
+        r.draw('torus', M4.orient(c, d, 0.98), g([0.8, 0.5, 1]), { emissive: open ? 0.2 : 0 });
+        r.sphere(c, 0.1, g([1, 0.85, 0.35]), E);
+        break;
+      }
+      case 17: { // tri fyzické qubity chránia logický qubit, chyba bliká
+        const err = Math.floor(t * 1.1) % 3;
+        r.rod(P(-0.7, 0), P(0.7, 0), g([0.6, 1, 0.6]), 0.018, E);
+        for (let i = 0; i < 3; i++) {
+          const p = P(-0.7 + i * 0.7, 0), bad = i === err;
+          r.sphere(p, 0.22, g(bad ? [1, 0.35, 0.3] : [0.45, 0.85, 0.95]), { emissive: open ? (bad ? 0.8 : 0.25) : 0 });
+          if (bad) r.arrow(V3.add(p, [0, 0.2, 0]), V3.add(p, [0, -0.26, 0]), g([1, 0.6, 0.3]), 0.032, E);
+        }
+        r.draw('torus', M4.orient(c, d, 1.02), g([0.45, 0.85, 0.95]), { emissive: open ? 0.15 : 0 });
+        break;
+      }
+      case 18: { // molekula H–C–C–H: jadrá, väzby, spiny a NMR spektrum
+        const atoms = [[-0.82, 0.22, 0.15], [-0.28, 0, 0.26], [0.28, 0, 0.26], [0.82, 0.22, 0.15]], sel = Math.floor(t * 0.8) % 4;
+        for (let i = 1; i < atoms.length; i++) r.rod(P(atoms[i - 1][0], atoms[i - 1][1]), P(atoms[i][0], atoms[i][1]), g([0.5, 0.52, 0.58]), 0.035, E);
+        atoms.forEach(([x, y, r0], i) => {
+          const p = P(x, y), on = i === sel;
+          r.sphere(p, r0, g(on ? [1, 0.75, 0.4] : [0.9, 0.9, 0.95]), { emissive: open ? (on ? 0.5 : 0.12) : 0 });
+          r.arrow(V3.add(p, [0, 0.34, 0]), V3.add(p, [0, 0.6 + 0.08 * Math.sin(t * 2 + i), 0]), g([1, 0.85, 0.3]), 0.026, E);
+        });
+        [0.42, 0.3, 0.3, 0.42].forEach((h, i) => r.draw('box', M4.trs(P(-0.6 + i * 0.4, -0.82 + h / 2), yaw, [0.1, h, 0.1]), g([0.3, 0.8, 1]), { emissive: open ? 0.3 : 0 }));
+        break;
+      }
+      case 19: { // Majoranov maják: nanodrôt, dva nulové módy a svetelný lúč
+        r.rod(P(-0.9, 0), P(0.9, 0), g([0.4, 0.45, 0.6]), 0.07, E);
+        const pulse = 0.5 + 0.5 * Math.sin(t * 2.4);
+        for (const s of [-1, 1]) {
+          const p = P(s * 0.9, 0);
+          r.sphere(p, 0.19 + 0.04 * pulse, g([1, 0.7, 0.3]), { emissive: open ? 0.35 + 0.55 * pulse : 0 });
+          r.draw('circle', M4.orient(p, d, 0.42 + 0.22 * pulse), g([1, 0.7, 0.3]), { alpha: 0.3, emissive: 0.5, unlit: 1 });
+        }
+        r.draw('cone', M4.trs(V3.add(P(0.9, 0), [0, 0.18, 0]), 0, [0.26, 1.2, 0.26]), g([1, 0.8, 0.4]), { alpha: open ? 0.14 : 0.06, emissive: 0.7, unlit: 1 });
+        break;
+      }
       default: break;
     }
   },

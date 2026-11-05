@@ -71,6 +71,22 @@ const UI = {
     $('#codex .close').onclick = () => this.toggleCodex(false);
     $('#help .close').onclick = () => this.toggleHelp(false);
     $('#journal .close').onclick = () => this.toggleLog(false);
+    $('#journey .close').onclick = () => Progress.close();
+    $('#explain .close').onclick = () => Explain.close();
+    const chip = document.getElementById('hud-rank');
+    if (chip) {
+      chip.setAttribute('role', 'button'); chip.tabIndex = 0;
+      chip.setAttribute('aria-label', tr('Cesta — XP, hodnosť, denná výzva, opakovanie a úspechy (P)', 'Journey — XP, rank, daily challenge, review and achievements (P)', 'Шлях — XP, ранг, денний виклик, повторення й досягнення (P)'));
+      chip.onclick = () => Progress.open('overview');
+      chip.onkeydown = (e) => { if (e.code === 'Enter' || e.code === 'Space') { e.preventDefault(); Progress.open('overview'); } };
+    }
+    // 🔎 hľadanie v Kódexe (funguje vo všetkých záložkách; filtruje karty podľa textu)
+    const cs = document.getElementById('codex-search');
+    if (cs) {
+      cs.placeholder = tr('🔎 Hľadať v Kódexe — symbol, meno alebo pojem…', '🔎 Search the Codex — symbol, name or concept…', '🔎 Пошук у Кодексі — символ, ім’я або поняття…');
+      cs.setAttribute('aria-label', tr('Hľadať v Kódexe', 'Search the Codex', 'Пошук у Кодексі'));
+      cs.oninput = () => { this.codexQuery = cs.value; this.applyCodexSearch(); };
+    }
     for (const b of document.querySelectorAll('#topbar button')) b.dataset.tip = tipFor(b.textContent) || b.title;
     // prístupnosť: čítačky obrazovky inak prečítajú len emoji / ✕
     for (const b of document.querySelectorAll('.close')) b.setAttribute('aria-label', tr('Zavrieť', 'Close', 'Закрити'));
@@ -79,6 +95,15 @@ const UI = {
     try { this.log = JSON.parse(localStorage.getItem('kvantp-game1-log') || '[]'); } catch (e) { this.log = []; }
     this.initTooltips();
     this.applyFontScale();
+  },
+
+  // ktorékoľvek prekrytie je otvorené — pohyb po ostrove a kliknutia do 3D sa majú zastaviť
+  anyOverlay() {
+    for (const sel of ['#settings', '#codex', '#help', '#journal', '#map', '#journey', '#explain', '#welcome']) {
+      const o = $(sel);
+      if (o && o.classList.contains('show')) return true;
+    }
+    return false;
   },
 
   // ---------- prístupnosť: celková veľkosť textu rozhrania ----------
@@ -270,6 +295,8 @@ const UI = {
       const back = el('button', null, tr('◂ Späť', '◂ Back', '◂ Назад'));
       back.disabled = i === 0; back.onclick = prev; back.dataset.tip = tr('Predchádzajúca replika (← alebo Backspace). Celé rozhovory nájdeš v Denníku (L).', 'Previous line (← or Backspace). Full conversations are in the Journal (L).', 'Попередня репліка (← або Backspace). Повні розмови — у Щоденнику (L).');
       nav.appendChild(back);
+      const deep = typeof Explain !== 'undefined' ? Explain.forText(l.text) : null;
+      if (deep) nav.appendChild(Explain.button(deep));
       nav.appendChild(this.askButton(l.text));
       nav.appendChild(el('span', 'hint', `${i + 1} / ${lines.length} · ${tr('Enter = ďalej, ← = späť', 'Enter = next, ← = back', 'Enter = далі, ← = назад')}`));
       const b = el('button', 'primary', i < lines.length - 1 ? tr('Ďalej ▸', 'Next ▸', 'Далі ▸') : tr('Rozumiem ✓', 'Got it ✓', 'Зрозуміло ✓'));
@@ -332,6 +359,12 @@ const UI = {
     this.refreshDialog = () => { if (!answered) this.quiz(q, cb, true); };
     this.dialog.appendChild(el('div', 'who', (q.face || '❓') + ' ' + (q.who || tr('Otázka', 'Question', 'Питання')) + (q.tag ? ` · <span class="bsrc">${q.tag}</span>` : '')));
     this.dialog.appendChild(el('div', 'txt', annotate(q.q, true, true)));
+    const deep = typeof Explain !== 'undefined' ? Explain.forQuestion(q) : null;
+    if (deep) {
+      const row = el('div', 'deep-row');
+      row.appendChild(Explain.button(deep));
+      this.dialog.appendChild(row);
+    }
     const box = el('div', 'choices'), order = this.quizOrder(q);
     // 🎯 sebadôvera: po výbere možnosti hráč povie, nakoľko si je istý — až potom sa odpoveď vyhodnotí
     const askConf = Settings.confidence && !q.noConf, conf = el('div', 'conf');
@@ -501,6 +534,13 @@ const UI = {
       const c = el('button', 'primary', tr('Pokračovať ▸', 'Continue ▸', 'Продовжити ▸'));
       c.onclick = () => { this.dialog.classList.remove('show'); this.dialog.onclick = null; this.busy = false; this._next = null; cb && cb(ok); };
       this.dialog.appendChild(c);
+      // hlbšie vysvetlenie až po odpovedi — inak by prezradilo podobu rovnice
+      const deep = typeof Explain !== 'undefined' ? Explain.forQuestion({ q: q.ctx, why: q.why, ctx: full, explain: q.explain, lvl: q.lvl }) : null;
+      if (deep) {
+        const row = el('div', 'deep-row');
+        row.appendChild(Explain.button(deep));
+        this.dialog.appendChild(row);
+      }
       this.dialog.appendChild(this.askButton(`${q.ctx || ''}\n${full}\n${q.why || ''}`));
       this._next = c.onclick;
       c.focus();
@@ -775,6 +815,11 @@ const UI = {
       this.plainButton('A+', () => this.setFontScale(Settings.fontScale + 0.1)),
       this.plainButton(tr('Pôvodná', 'Reset', 'Скинути'), () => this.setFontScale(1)),
     ));
+    body.appendChild(el('h3', null, tr('♿ Prístupnosť a pohodlie', '♿ Accessibility and comfort', '♿ Доступність і комфорт')));
+    body.appendChild(this.checkbox(tr('obmedziť pohyb — vypne oslavy, prechody a pulzovanie; rešpektuje aj nastavenie operačného systému', 'reduce motion — turns off celebrations, transitions and pulsing; also follows the operating system setting', 'обмежити рух — вимикає святкування, переходи й пульсацію; враховує й налаштування системи'), Settings.reducedMotion, (v) => { Settings.reducedMotion = v; Settings.save(); applyAccessibility(); }));
+    body.appendChild(this.checkbox(tr('vysoký kontrast — výraznejšie okraje, text a obrys fokusu pre lepšiu čitateľnosť', 'high contrast — stronger borders, text and focus outlines for easier reading', 'високий контраст — виразніші межі, текст і контур фокуса для кращої читабельності'), Settings.highContrast, (v) => { Settings.highContrast = v; Settings.save(); applyAccessibility(); }));
+    body.appendChild(el('p', 'muted', tr('Cesta (P) zhromažďuje hodnosť, dennú výzvu, opakovanie a úspechy na jednom mieste.', 'The Journey (P) gathers your rank, daily challenge, review and achievements in one place.', 'Шлях (P) збирає ранг, денний виклик, повторення й досягнення в одному місці.')));
+    body.appendChild(this.row(this.plainButton(tr('🧭 Otvoriť Cestu (P)', '🧭 Open the Journey (P)', '🧭 Відкрити Шлях (P)'), () => { this.toggleSettings(false); Progress.open('overview'); })));
     body.appendChild(el('h3', null, tr('📊 Vizualizácie', '📊 Visualizations', '📊 Візуалізації')));
     const g1 = el('div', 'grid2');
     for (const [k, label, tip] of [
@@ -847,16 +892,17 @@ const UI = {
     if (show) this.renderCodex();
   },
   renderCodex(filter = 'all') {
+    this.codexFilter = filter;
     const list = $('#codex .list'), got = Game.progress.codex;
     list.innerHTML = '';
     const tabs = $('#codex .tabs'); tabs.innerHTML = '';
     for (const [k, n] of [['all', tr('Všetko', 'All', 'Усе')], ['symbol', tr('🔣 Symboly', '🔣 Symbols', '🔣 Символи')], ['osobnost', tr('👤 Osobnosti', '👤 People', '👤 Особистості')], ['pojem', tr('💡 Pojmy', '💡 Concepts', '💡 Поняття')], ['scroll', tr('📜 Zvitky', '📜 Scrolls', '📜 Сувої')], ['eq', tr('∑ Rovnice', '∑ Equations', '∑ Рівняння')], ['drill', tr('📄 Prednášky', '📄 Lecture drill', '📄 Лекції')], ['facts', tr('✨ Fakty', '✨ Facts', '✨ Факти')]]) {
       const b = el('button', filter === k ? 'on' : '', n); b.onclick = () => this.renderCodex(k); tabs.appendChild(b);
     }
-    if (filter === 'scroll') return this.renderScrolls(list);
-    if (filter === 'eq') return this.renderEquations(list);
-    if (filter === 'drill') return this.renderDrill(list);
-    if (filter === 'facts') return this.renderFacts(list);
+    if (filter === 'scroll') { this.renderScrolls(list); return this.afterCodexRender(); }
+    if (filter === 'eq') { this.renderEquations(list); return this.afterCodexRender(); }
+    if (filter === 'drill') { this.renderDrill(list); return this.afterCodexRender(); }
+    if (filter === 'facts') { this.renderFacts(list); return this.afterCodexRender(); }
     const entries = CODEX.filter((e) => filter === 'all' || e.type === filter);
     $('#codex .count').textContent = `${got.size} / ${CODEX.length} ${tr('odomknutých', 'unlocked', 'відкрито')}`;
     // koľko otázok z každého levelu je práve na rade v opakovaní (↻) — aby Kódex ukázal, čo si treba zopakovať
@@ -873,16 +919,49 @@ const UI = {
         : `<div class="sym">?</div><div class="nm">${tr('zamknuté', 'locked', 'закрито')}</div><div class="ds">${tr(`Odomkneš v leveli ${e.level}.`, `Unlocked in level ${e.level}.`, `Відкриється в рівні ${e.level}.`)}</div>`;
       if (!have) card.dataset.tip = tr(`Dokonči level ${e.level} (${LEVELS[e.level - 1].title}).`, `Complete level ${e.level} (${LEVELS[e.level - 1].title}).`, `Пройди рівень ${e.level} (${LEVELS[e.level - 1].title}).`);
       // „precvič ma“: 1–2 otázky z tohto levelu (najprv tie, ktoré sú na rade v opakovaní) — kartu tak treba aj použiť
-      if (have && (TRANSFER[e.level] || TRAPS[e.level])) {
-        const label = due ? tr(`🧪 Precvič ma (↻ ${due})`, `🧪 Test me (↻ ${due})`, `🧪 Перевір мене (↻ ${due})`) : tr('🧪 Precvič ma', '🧪 Test me', '🧪 Перевір мене');
-        const b = this.plainButton(label, () => Learn.testMe(e.level));
-        b.className = due ? 'testme due' : 'testme'; b.dataset.tip = due
-          ? tr(`${due} otázok z tohto levelu je na rade v opakovaní. Klikni a zopakuj si ich.`, `${due} questions from this level are due for review. Click to go through them.`, `${due} питань із цього рівня чекають на повторення. Натисни, щоб пройти їх.`)
-          : tr('Dve krátke otázky k tomuto levelu. Chyby sa vrátia v opakovaní.', 'Two short questions on this level. Mistakes come back in your reviews.', 'Два короткі питання з цього рівня. Помилки повернуться в повтореннях.');
-        card.appendChild(b);
+      if (have) {
+        const actions = el('div', 'card-actions');
+        if (TRANSFER[e.level] || TRAPS[e.level]) {
+          const label = due ? tr(`🧪 Precvič ma (↻ ${due})`, `🧪 Test me (↻ ${due})`, `🧪 Перевір мене (↻ ${due})`) : tr('🧪 Precvič ma', '🧪 Test me', '🧪 Перевір мене');
+          const b = this.plainButton(label, () => Learn.testMe(e.level));
+          b.className = due ? 'testme due' : 'testme'; b.dataset.tip = due
+            ? tr(`${due} otázok z tohto levelu je na rade v opakovaní. Klikni a zopakuj si ich.`, `${due} questions from this level are due for review. Click to go through them.`, `${due} питань із цього рівня чекають на повторення. Натисни, щоб пройти їх.`)
+            : tr('Dve krátke otázky k tomuto levelu. Chyby sa vrátia v opakovaní.', 'Two short questions on this level. Mistakes come back in your reviews.', 'Два короткі питання з цього рівня. Помилки повернуться в повтореннях.');
+          actions.appendChild(b);
+        }
+        if (typeof Explain !== 'undefined' && Explain.codex(e.id)) {
+          const d = this.plainButton(tr('📚 Hlbšie', '📚 Go deeper', '📚 Глибше'), () => Explain.open('codex:' + e.id));
+          d.className = 'deepbtn';
+          d.dataset.tip = tr('Rozšírené vysvetlenie tejto karty — bez zatvorenia Kódexu.', 'An expanded explanation of this card — without closing the Codex.', 'Розширене пояснення цієї картки — не закриваючи Кодекс.');
+          actions.appendChild(d);
+        }
+        if (actions.children.length) card.appendChild(actions);
       }
       list.appendChild(card);
     }
+    this.afterCodexRender();
+  },
+  // po každom prekreslení Kódexu: zapamätaj pôvodný počet a znova aplikuj hľadanie
+  afterCodexRender() {
+    const c = $('#codex .count');
+    this._codexCount = c ? c.textContent : '';
+    this.applyCodexSearch();
+  },
+  applyCodexSearch() {
+    const list = $('#codex .list');
+    if (!list) return;
+    const q = String(this.codexQuery || '').trim().toLowerCase();
+    const cards = [...list.children];
+    let shown = 0;
+    for (const card of cards) {
+      const hit = !q || card.textContent.toLowerCase().includes(q);
+      card.style.display = hit ? '' : 'none';
+      if (hit) shown++;
+    }
+    const c = $('#codex .count');
+    if (c) c.textContent = q
+      ? `${shown} / ${cards.length} ${tr('zodpovedá hľadaniu', 'match the search', 'відповідають пошуку')}`
+      : (this._codexCount || c.textContent);
   },
   // ∑ rovnice úloh všetkých levelov (odomknú sa, keď hráč úlohu začne) — v oboch typoch hry
   renderEquations(list) {

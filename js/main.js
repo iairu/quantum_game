@@ -288,7 +288,7 @@ const Hub = {
     if (Settings.menu) { this.near = null; this.nearGuide = false; this.nearVendor = false; return; } // menu: bez chodenia po ostrove
     const W = Settings.wow;
     if (W) Wow.moving = false;
-    if (!UI.busy && !(W && Wow.dead)) {
+    if (!UI.busy && !UI.anyOverlay() && !(W && Wow.dead)) {
       let f = 0, s = 0;
       const k = Game.keys;
       if (k.KeyW || k.ArrowUp) f += 1;
@@ -760,7 +760,8 @@ const PortalArt = {
 const LEARN_PROGRESS = (d = {}) => ({ review: d.review || {}, stats: d.stats || {}, mastery: d.mastery || {}, assess: d.assess || {}, hints: d.hints || {}, times: d.times || {}, drill: d.drill || {}, clock: d.clock | 0, symSeen: d.symSeen || [] });
 const Game = {
   keys: {},
-  progress: { stars: {}, diff: {}, codex: new Set(), scrolls: new Set(), eqs: new Set(), introSeen: false, laymanSeen: false, allUnlocked: false, session: null, moved: false, ...LEARN_PROGRESS() },
+  progress: { stars: {}, diff: {}, codex: new Set(), scrolls: new Set(), eqs: new Set(), introSeen: false, laymanSeen: false, allUnlocked: false, session: null, moved: false,
+    xp: 0, ach: {}, deep: {}, counters: {}, streak: 0, lastDay: '', daily: null, ...LEARN_PROGRESS() },
   init() {
     const canvas = $('#gl');
     try { this.r = new Renderer(canvas); }
@@ -780,6 +781,7 @@ const Game = {
     Wow.init(); // MMO téma: postava, nepriatelia, lišta kúziel (inak nič)
     this.scene = Hub; Hub.enter();
     this.restoreSession();
+    if (typeof Progress !== 'undefined') { Progress.ensureDay(); Progress.hud(); }
     this.bindInput(canvas);
     this.last = performance.now();
     requestAnimationFrame((t) => this.loop(t));
@@ -813,18 +815,30 @@ const Game = {
   },
   bindInput(canvas) {
     window.addEventListener('keydown', (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-      if (e.code === 'Escape') { UI.toggleSettings(false); EqM.toggleKey(false); }
+      // pri písaní do vyhľadávania (Kódex) sa klávesy nesmú chovať ako skratky — Escape však overlay zavrie
+      const typing = e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT';
+      if (typing && e.code !== 'Escape') return;
+      if (e.code === 'Escape') {
+        const ex = $('#explain'), jr = $('#journey');
+        if (ex && ex.classList.contains('show')) { Explain.close(); if (typing) e.target.blur(); return; }
+        if (jr && jr.classList.contains('show')) { Progress.close(); if (typing) e.target.blur(); return; }
+        UI.toggleSettings(false); EqM.toggleKey(false);
+        UI.toggleCodex(false); UI.toggleHelp(false); UI.toggleLog(false); this.toggleMap(false); Settings.wow && Wow.escape();
+        if (typing) { e.target.blur(); return; }
+      }
+      if (typing) return;
       if (e.code === 'Tab') e.preventDefault(); // Tab = ďalší cieľ (MMO), nie presun fokusu
       this.keys[e.code] = true;
-      if ((e.code === 'Enter' || e.code === 'Space') && UI.busy && UI._next) { e.preventDefault(); UI._next(); return; }
-      if ((e.code === 'ArrowLeft' || e.code === 'Backspace') && UI.busy && UI._prev) { e.preventDefault(); UI._prev(); return; }
+      if ((e.code === 'Enter' || e.code === 'Space') && !UI.anyOverlay() && UI.busy && UI._next) { e.preventDefault(); UI._next(); return; }
+      if ((e.code === 'ArrowLeft' || e.code === 'Backspace') && !UI.anyOverlay() && UI.busy && UI._prev) { e.preventDefault(); UI._prev(); return; }
       if (e.code === 'KeyL') { UI.toggleLog(); return; }
       if (e.code === 'KeyV') { Views.toggle(); return; } // pohľady aj počas dialógu
       if (e.code === 'KeyN') { Sound.toggleMute(); return; }
       if (e.code === 'KeyT') { UI.toggleAppearance(); return; } // svetlý / tmavý režim
       if (e.code === 'KeyM' && !Settings.menu) { this.toggleMap(); return; } // menu: bez mapy // mapa (a teleport) aj počas dialógu
       if (Settings.wow && UI.busy && /^Digit[89]$/.test(e.code)) { Wow.key(e); return; } // elixíry aj počas dialógu
+      if (e.code === 'KeyP') { if ($('#explain').classList.contains('show')) Explain.close(); Progress.open('overview'); return; } // 🧭 Cesta
+      if (UI.anyOverlay()) return; // prekrytie je otvorené: svet za ním sa nemá hýbať ani reagovať
       if (UI.busy) return;
       if (Settings.wow && Wow.key(e)) return; // lišta kúziel 1 … =, Tab, B, skok
       if (e.code === 'KeyE' && this.scene === Hub) Hub.interact();
@@ -834,7 +848,6 @@ const Game = {
       if (e.code === 'KeyK' && Settings.glyphs) EqM.toggleKey(); // 🔑 kľúč (nie počas rozhovoru)
       if (e.code === 'KeyO') UI.toggleSettings();
       if (e.code === 'KeyH' || e.code === 'F1') { e.preventDefault(); UI.toggleHelp(); }
-      if (e.code === 'Escape') { UI.toggleCodex(false); UI.toggleHelp(false); UI.toggleLog(false); this.toggleMap(false); Settings.wow && Wow.escape(); }
       if (e.code === 'F9') { e.preventDefault(); this.unlockAll(); }
     });
     window.addEventListener('keyup', (e) => { this.keys[e.code] = false; });
@@ -884,6 +897,7 @@ const Game = {
     Hub.enter(from);
     Settings.wow && Wow.onHub();
     this.save();
+    if (typeof Progress !== 'undefined') setTimeout(() => Progress.flushCelebrations(), 700);
   },
   // SpinQ: voľná dielňa bez hodnotenia — dostupná z ostrova (tlačidlo), mapy aj nastavení, klávesom Q
   enterSpinQ() {
@@ -1018,7 +1032,8 @@ const Game = {
       + (dd && dd !== 'normal' ? ` <small>(${DIFF_NAME[dd]})</small>` : '');
   },
   completeLevel(n, stars) {
-    const fresh = this.progress.stars[n] === undefined;
+    const prev = this.progress.stars[n];
+    const fresh = prev === undefined;
     Sound.sfx('fanfare');
     this.progress.stars[n] = Math.max(stars, this.progress.stars[n] || 0);
     Settings.wow && n > 0 && Wow.onLevelComplete(n, stars); // MMO: boss padol, korisť, skúsenosti
@@ -1033,10 +1048,12 @@ const Game = {
     if (!this.progress.diff[n] || rank(Settings.diff) > rank(this.progress.diff[n])) this.progress.diff[n] = Settings.diff;
     this.unlock(CODEX.filter((c) => c.level === n).map((c) => c.id));
     this.save();
+    if (typeof Progress !== 'undefined') Progress.onLevel(n, this.progress.stars[n], prev);
   },
   unlockScroll(id) {
     if (this.progress.scrolls.has(id)) return;
     this.progress.scrolls.add(id); this.save();
+    if (typeof Progress !== 'undefined') Progress.onScroll();
   },
   unlock(ids) {
     const fresh = ids.filter((id) => !this.progress.codex.has(id));
@@ -1044,6 +1061,7 @@ const Game = {
     if (fresh.length) {
       const names = fresh.map((id) => CODEX.find((c) => c.id === id)).filter(Boolean).map((c) => c.sym + ' ' + c.name);
       UI.toast(tr('📖 Nové v Kódexe: ', '📖 New in the Codex: ', '📖 Нове в Кодексі: ') + names.join(', '), 3800);
+      if (typeof Progress !== 'undefined') Progress.onCodex(fresh);
       this.save();
     }
   },
@@ -1141,7 +1159,7 @@ const Game = {
   save() {
     if (this.resetting || !this.levels) return;
     this.progress.session = this.snapshot();
-    try { localStorage.setItem('kvantp-game1', JSON.stringify({ ...this.progress, ver: 3, codex: [...this.progress.codex], scrolls: [...this.progress.scrolls], eqs: [...this.progress.eqs] })); } catch (e) { /* bez ukladania */ }
+    try { localStorage.setItem('kvantp-game1', JSON.stringify({ ...this.progress, ver: 4, codex: [...this.progress.codex], scrolls: [...this.progress.scrolls], eqs: [...this.progress.eqs] })); } catch (e) { /* bez ukladania */ }
   },
   load() {
     try {
@@ -1154,8 +1172,10 @@ const Game = {
         for (const k of ['stars', 'diff']) if (d[k]) { const a = d[k][12], b = d[k][13]; delete d[k][12]; delete d[k][13]; if (a !== undefined) d[k][13] = a; if (b !== undefined) d[k][12] = b; }
         if (d.session && (d.session.scene === 12 || d.session.scene === 13)) d.session.scene = 25 - d.session.scene;
       }
-      if (d) this.progress = { stars: d.stars || {}, diff: Object.fromEntries(Object.entries(d.diff || {}).map(([k, v]) => [k, v === 'ancient' ? 'hard' : v])), codex: new Set(d.codex || []), scrolls: new Set(d.scrolls || []), eqs: new Set(d.eqs || []), introSeen: !!d.introSeen, eqIntroSeen: !!d.eqIntroSeen, laymanSeen: !!d.laymanSeen, moved: !!d.moved, allUnlocked: !!d.allUnlocked, session: d.session || null, wow: d.wow || null, ...LEARN_PROGRESS(d) };
+      if (d) this.progress = { stars: d.stars || {}, diff: Object.fromEntries(Object.entries(d.diff || {}).map(([k, v]) => [k, v === 'ancient' ? 'hard' : v])), codex: new Set(d.codex || []), scrolls: new Set(d.scrolls || []), eqs: new Set(d.eqs || []), introSeen: !!d.introSeen, eqIntroSeen: !!d.eqIntroSeen, laymanSeen: !!d.laymanSeen, moved: !!d.moved, allUnlocked: !!d.allUnlocked, session: d.session || null, wow: d.wow || null,
+        xp: d.xp | 0, ach: d.ach || {}, deep: d.deep || {}, counters: d.counters || {}, streak: d.streak | 0, lastDay: d.lastDay || '', daily: d.daily || null, ...LEARN_PROGRESS(d) };
     } catch (e) { /* čistý začiatok */ }
+    try { if (typeof Progress !== 'undefined') Progress.migrate(); } catch (e) { console.warn('progress migration', e); }
   },
 };
 

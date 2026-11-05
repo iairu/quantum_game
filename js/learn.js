@@ -428,7 +428,7 @@ const Learn = {
     const st = P.stats[id] || (P.stats[id] = { n: 0, ok: 0, first: null, w: {} });
     st.n++; if (ok) st.ok++; if (st.first == null) st.first = ok ? 1 : 0;
     if (!ok && info.pick != null) st.w[info.pick] = (st.w[info.pick] || 0) + 1;
-    if (q.drill) { P.drill[id] = ok ? 1 : 0; return Game.save(); }
+    if (q.drill) { P.drill[id] = ok ? 1 : 0; if (typeof Progress !== 'undefined') Progress.onAnswer(q, ok, info); return Game.save(); }
     const L = this.level();
     if (q.isPre) { if (L && L.lrn.pre) { L.lrn.pre.n++; if (ok) L.lrn.pre.ok++; } return Game.save(); }
     if (q.isPost && L && L.lrn.post) { L.lrn.post.n++; if (ok) L.lrn.post.ok++; }
@@ -456,6 +456,7 @@ const Learn = {
       if (!ok && !q.secondChance && !q.isRetry && L.lrn.missed.length < 12 && !L.lrn.missed.some((s) => s.id === id)) L.lrn.missed.push(this.snap({ ...q, lvl: L.num, obj }));
       if (info.conf != null) { L.lrn.calib.n++; if (info.conf === 2) { L.lrn.calib.sure++; if (ok) L.lrn.calib.sureOk++; } }
     }
+    if (typeof Progress !== 'undefined') Progress.onAnswer(q, ok, info);
     Game.save();
   },
 

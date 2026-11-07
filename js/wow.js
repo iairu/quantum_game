@@ -89,6 +89,11 @@ const BOSS_LOOT = {
   17: { slot: 'chest', icon: '🛡', name: tr('Shorovo rúcho syndrómov', 'Shor’s Robe of Syndromes', 'Шорова мантія синдромів'), robe: [0.4, 0.75, 0.9] },
   18: { slot: 'head', icon: '🧪', name: tr('Paulingova koruna väzieb', 'Pauling’s Crown of Bonds', 'Полінгова корона зв’язків'), hat: 'circlet' },
   19: { slot: 'weapon', icon: '🔶', name: tr('Majoranova pletená palica', 'Majorana’s Braided Rod', 'Плетений жезл Майорани') },
+  20: { slot: 'trinket', icon: '🪞', name: tr('Schmidtovo zrkadlo páru', 'Schmidt’s Mirror of Pairs', 'Шмідтове дзеркало пар') },
+  21: { slot: 'chest', icon: '📡', name: tr('Chuangov plášť pulzov', 'Chuang’s Cloak of Pulses', 'Чуангів плащ імпульсів'), robe: [0.5, 0.85, 0.45] },
+  22: { slot: 'trinket', icon: '🔮', name: tr('Jozsova krištáľová guľa', 'Jozsa’s Crystal Ball', 'Кришталева куля Йожи') },
+  23: { slot: 'weapon', icon: '🎛', name: tr('Walshova palica znamienok', 'Walsh’s Staff of Signs', 'Жезл знаків Волша') },
+  24: { slot: 'chest', icon: '🐈', name: tr('Mirrahimiho mačací kožuch', 'Mirrahimi’s Cat-Fur Mantle', 'Котяча мантія Міррахімі'), robe: [0.9, 0.8, 0.5] },
 };
 const BOSSES = {
   1: { icon: '➕', name: tr('Sčítač pravdepodobností', 'The Probability Adder', 'Додавач імовірностей'), tip: tr('Sčítava pravdepodobnosti namiesto amplitúd — a interferencia mu uniká.', 'Adds probabilities instead of amplitudes — and so misses interference.', 'Додає ймовірності замість амплітуд — і тому пропускає інтерференцію.') },
@@ -110,6 +115,11 @@ const BOSSES = {
   17: { icon: '🛡', name: tr('Rozsievač tichých chýb', 'Sower of Silent Errors', 'Сіяч тихих помилок'), tip: tr('Verí, že qubit sa nedá opraviť, lebo meranie ho pokazí.', 'Believes a qubit cannot be fixed because measuring it destroys it.', 'Вірить, що кубіт не можна виправити, бо вимірювання його руйнує.') },
   18: { icon: '🧪', name: tr('Zmätený spektroskop', 'The Muddled Spectroscope', 'Спантеличений спектроскоп'), tip: tr('Nevie rozlíšiť jadrá v molekule, hoci majú rôzny chemický posun.', 'Cannot tell the nuclei in a molecule apart, though their chemical shifts differ.', 'Не може розрізнити ядра в молекулі, хоча їхні хімічні зсуви різні.') },
   19: { icon: '🔶', name: tr('Rušiteľ pletenca', 'The Braid-Breaker', 'Руйнівник плетива'), tip: tr('Myslí si, že na poradí pletenia Majoran nezáleží.', 'Thinks the order of braiding Majoranas does not matter.', 'Думає, що порядок плетіння Майоран не має значення.') },
+  20: { icon: '🪞', name: tr('Nadsvetelný posol', 'The Faster-than-Light Courier', 'Надсвітловий кур’єр'), tip: tr('Verí, že cez previazaný pár sa dá poslať správa okamžite.', 'Believes a message can be sent instantly through an entangled pair.', 'Вірить, що через заплутану пару можна миттєво надіслати повідомлення.') },
+  21: { icon: '📡', name: tr('Pyšný polarizátor', 'The Proud Polarizer', 'Гордий поляризатор'), tip: tr('Tvrdí, že NMR „Bellov stav“ pri izbovej teplote je skutočne previazaný.', 'Claims the room-temperature NMR "Bell state" is truly entangled.', 'Стверджує, що ЯМР-«стан Белла» за кімнатної температури справді заплутаний.') },
+  22: { icon: '🔮', name: tr('Slepý k fázam', 'The Phase-Blind', 'Сліпий до фаз'), tip: tr('Myslí si, že znamienko amplitúdy nemá merateľný účinok.', 'Thinks the sign of an amplitude has no measurable effect.', 'Думає, що знак амплітуди не має вимірюваного впливу.') },
+  23: { icon: '🎛', name: tr('Pýtač bit po bite', 'The Bit-by-Bit Asker', 'Запитувач біт за бітом'), tip: tr('Hľadá skryté s klasicky, jedným dotazom na každý bit.', 'Searches for the hidden s classically, one query per bit.', 'Шукає приховане s класично, по одному запиту на кожен біт.') },
+  24: { icon: '🐈', name: tr('Hladný fotónožrút', 'The Hungry Photon-Eater', 'Голодний фотоножер'), tip: tr('Kradne fotóny jeden po druhom a dúfa, že tým preklopí mačku.', 'Steals photons one by one hoping to flip the cat.', 'Краде фотони по одному, сподіваючись перевернути кота.') },
 };
 
 // kúzla: id, kláves, ikona, úroveň, čas zosielania, mana, dosah, cooldown, poškodenie

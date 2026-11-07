@@ -1,8 +1,8 @@
 'use strict';
 // Zoznam levelov v poradí (mapa ostrova). Farby sú portály.
 // num = stabilný identifikátor (kľúč do uloženého postupu, Kódexu a máp) — nikdy sa nemení.
-// seq = poradie na ostrove a v odomykaní (zobrazené číslo portálu). Nové levely 14–19 majú seq 12–17,
-//       takže sa ukážu medzi 11. a praktickou NMR dielňou (seq 18) a drakom (seq 19) bez prečíslovania dát.
+// seq = poradie na ostrove a v odomykaní (zobrazené číslo portálu). Nové levely 14–24 majú seq 12–22,
+//       takže sa ukážu medzi 11. a praktickou NMR dielňou (seq 23) a drakom (seq 24) bez prečíslovania dát.
 const LEVELS = [
   { num: 1, seq: 1, title: tr('Komplexný prístav', 'Complex Harbour', 'Комплексна гавань'), mentor: tr('Leonhard Euler', 'Leonhard Euler', 'Леонард Ейлер'), face: '🧮', color: [0.95, 0.6, 0.25], cls: L1Complex },
   { num: 2, seq: 2, title: tr('Sternova–Gerlachova pec', 'Stern–Gerlach Furnace', 'Піч Штерна–Ґерлаха'), mentor: tr('Stern & Gerlach', 'Stern & Gerlach', 'Штерн і Ґерлах'), face: '🧲', color: [0.95, 0.35, 0.35], cls: L2Stern },
@@ -22,9 +22,15 @@ const LEVELS = [
   { num: 17, seq: 15, title: tr('Štít korekcie chýb', 'Error-Correction Shield', 'Щит корекції помилок'), mentor: tr('Peter Shor', 'Peter Shor', 'Пітер Шор'), face: '🛡', color: [0.45, 0.85, 0.95], cls: L17Qec },
   { num: 18, seq: 16, title: tr('Chemická kúria NMR', 'NMR Chemistry Manor', 'Хімічна садиба ЯМР'), mentor: tr('Linus Pauling', 'Linus Pauling', 'Лайнус Полінг'), face: '🧪', color: [0.9, 0.6, 0.4], cls: L18NmrChem },
   { num: 19, seq: 17, title: tr('Majoranov maják', 'Majorana Lighthouse', 'Маяк Майорани'), mentor: tr('Ettore Majorana', 'Ettore Majorana', 'Етторе Майорана'), face: '🔶', color: [0.7, 0.7, 0.95], cls: L19Majorana },
+  // ---- nové levely (prednášky 7 a 8): previazanosť, SpinQ Bell, orákulá, Walsh–Hadamard, mačacie qubity ----
+  { num: 20, seq: 18, title: tr('Dielňa previazanosti', 'Entanglement Workshop', 'Майстерня заплутаності'), mentor: tr('Erhard Schmidt', 'Erhard Schmidt', 'Ергард Шмідт'), face: '🪞', color: [0.95, 0.5, 0.85], cls: L20Entangle },
+  { num: 21, seq: 19, title: tr('Bellov stav na SpinQ', 'Bell State on SpinQ', 'Стан Белла на SpinQ'), mentor: tr('Isaac Chuang', 'Isaac Chuang', 'Айзек Чуанг'), face: '📡', color: [0.55, 0.9, 0.5], cls: L21SpinqBell },
+  { num: 22, seq: 20, title: tr('Orákulum fáz', 'Phase Oracle', 'Фазовий оракул'), mentor: tr('Richard Jozsa', 'Richard Jozsa', 'Річард Йожа'), face: '🔮', color: [0.65, 0.4, 0.95], cls: L22Oracle },
+  { num: 23, seq: 21, title: tr('Walshova–Hadamardova dielňa', 'Walsh–Hadamard Workshop', 'Майстерня Волша–Адамара'), mentor: tr('Bernstein & Vazirani', 'Bernstein & Vazirani', 'Бернштейн і Вазірані'), face: '🎛', color: [1, 0.7, 0.2], cls: L23Walsh },
+  { num: 24, seq: 22, title: tr('Mačací qubit', 'Cat Qubit', 'Котячий кубіт'), mentor: tr('Mazyar Mirrahimi', 'Mazyar Mirrahimi', 'Мазіяр Міррахімі'), face: '🐈', color: [0.95, 0.85, 0.55], cls: L24Cat },
   // špeciálny praktický level: odomknutý od začiatku (free), nepočíta sa medzi slová moci proti drakovi
-  { num: 12, seq: 18, title: tr('NMR dielňa', 'NMR Workshop', 'ЯМР-майстерня'), mentor: tr('Edward Purcell', 'Edward Purcell', 'Едвард Перселл'), face: '🧫', color: [0.45, 1, 0.75], cls: L12Nmr, free: true },
-  { num: 13, seq: 19, title: tr('Dračí štít', 'Dragon’s Peak', 'Драконів пік'), mentor: tr('Erwin Schrödinger', 'Erwin Schrödinger', 'Ервін Шредінгер'), face: '🐱', color: [1, 0.42, 0.15], cls: L13Dragon, boss: true },
+  { num: 12, seq: 23, title: tr('NMR dielňa', 'NMR Workshop', 'ЯМР-майстерня'), mentor: tr('Edward Purcell', 'Edward Purcell', 'Едвард Перселл'), face: '🧫', color: [0.45, 1, 0.75], cls: L12Nmr, free: true },
+  { num: 13, seq: 24, title: tr('Dračí štít', 'Dragon’s Peak', 'Драконів пік'), mentor: tr('Erwin Schrödinger', 'Erwin Schrödinger', 'Ервін Шредінгер'), face: '🐱', color: [1, 0.42, 0.15], cls: L13Dragon, boss: true },
 ].filter((L) => !L.boss || Settings.nordic || Settings.wow); // 13. level (drak) v severskej a MMO téme
 
 // zobrazené číslo levelu (poradie na ostrove), resp. predchodca v poradí odomykania

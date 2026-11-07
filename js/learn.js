@@ -104,6 +104,31 @@ const OBJECTIVES = {
     { id: 'topqubit', steps: ['topqubit'], text: tr('Vysvetlím, prečo je topologický qubit uložený nelokálne a odolnejší voči šumu.', 'I can explain why a topological qubit is stored non-locally and is more robust to noise.', 'Пояснюю, чому топологічний кубіт зберігається нелокально й стійкіший до шуму.') },
     { id: 'braiding', steps: ['braiding', 'anyons'], text: tr('Vysvetlím pletenie (braiding) ako hradlo a prečo na poradí záleží (neabelovské anyóny).', 'I can explain braiding as a gate and why order matters (non-Abelian anyons).', 'Пояснюю плетіння (braiding) як гейт і чому порядок має значення (неабелеві аніони).') },
   ],
+  20: [
+    { id: 'product', steps: ['intro', 'product'], text: tr('Rozlíšim produktový a previazaný stav (ad = bc).', 'I can tell a product state from an entangled one (ad = bc).', 'Розрізняю добутковий і заплутаний стан (ad = bc).') },
+    { id: 'schmidt', steps: ['cnot', 'schmidt'], text: tr('Vysvetlím Schmidtov rozklad, čiastočnú stopu a entropiu previazanosti.', 'I can explain the Schmidt decomposition, the partial trace and entanglement entropy.', 'Пояснюю розклад Шмідта, часткову слідову операцію та ентропію заплутаності.') },
+    { id: 'protocols', steps: ['relation', 'protocols'], text: tr('Vysvetlím no-signalling, teleportáciu a superhusté kódovanie.', 'I can explain no-signalling, teleportation and superdense coding.', 'Пояснюю no-signalling, телепортацію та надщільне кодування.') },
+  ],
+  21: [
+    { id: 'bellmat', steps: ['intro', 'matrix'], text: tr('Prečítam Bellov stav z matice hustoty 4×4 a Pauliho korelácií.', 'I can read a Bell state from the 4×4 density matrix and Pauli correlations.', 'Читаю стан Белла з матриці густини 4×4 і кореляцій Паулі.') },
+    { id: 'nmrbell', steps: ['pulses', 'pps'], text: tr('Vysvetlím pulznú sekvenciu s J-väzbou a pseudo-čistý stav.', 'I can explain the pulse sequence with J-coupling and the pseudo-pure state.', 'Пояснюю імпульсну послідовність із J-зв’язком і псевдочистий стан.') },
+    { id: 'tomo', steps: ['tomo', 'spin'], text: tr('Vysvetlím tomografiu (15 parametrov) a triplet vs. singlet.', 'I can explain tomography (15 parameters) and triplet vs. singlet.', 'Пояснюю томографію (15 параметрів) і триплет vs. синглет.') },
+  ],
+  22: [
+    { id: 'interf', steps: ['intro', 'interfere'], text: tr('Vysvetlím, ako relatívna fáza rozhodne o výstupe interferometra.', 'I can explain how a relative phase decides an interferometer’s output.', 'Пояснюю, як відносна фаза визначає вихід інтерферометра.') },
+    { id: 'kickback', steps: ['oracle', 'kickback'], text: tr('Vysvetlím fázové orákulum a fázový spätný ráz.', 'I can explain the phase oracle and phase kickback.', 'Пояснюю фазовий оракул і фазовий відкат.') },
+    { id: 'deutsch', steps: ['deutsch'], text: tr('Rozhodnem Deutschovým algoritmom, či je f konštantná alebo vyvážená.', 'I can decide with Deutsch’s algorithm whether f is constant or balanced.', 'Визначаю алгоритмом Дойча, чи f стала, чи збалансована.') },
+  ],
+  23: [
+    { id: 'walsh', steps: ['intro', 'dj'], text: tr('Vysvetlím H<sup>⊗n</sup> a Deutschov–Jozsov algoritmus.', 'I can explain H<sup>⊗n</sup> and the Deutsch–Jozsa algorithm.', 'Пояснюю H<sup>⊗n</sup> і алгоритм Дойча–Йожи.') },
+    { id: 'bv', steps: ['bv'], text: tr('Nájdem skryté s Bernsteinovým–Vaziraniho algoritmom jedným dotazom.', 'I can find the hidden s with the Bernstein–Vazirani algorithm in one query.', 'Знаходжу приховане s алгоритмом Бернштейна–Вазірані одним запитом.') },
+    { id: 'cost', steps: ['cost', 'hardware'], text: tr('Vysvetlím zložitosť dotazov a jej hranice na reálnom hardvéri.', 'I can explain query complexity and its limits on real hardware.', 'Пояснюю складність запитів та її межі на реальному обладнанні.') },
+  ],
+  24: [
+    { id: 'cat', steps: ['intro', 'blobs'], text: tr('Vysvetlím mačací qubit |±α⟩ a biasovaný šum (e<sup>−2n̄</sup> vs. n̄).', 'I can explain the cat qubit |±α⟩ and biased noise (e<sup>−2n̄</sup> vs. n̄).', 'Пояснюю котячий кубіт |±α⟩ і зміщений шум (e<sup>−2n̄</sup> vs. n̄).') },
+    { id: 'dissip', steps: ['lindblad', 'bias'], text: tr('Vysvetlím dvojfotónovú disipáciu a prečo strata fotónu spôsobí len fázovú chybu.', 'I can explain two-photon dissipation and why photon loss causes only a phase error.', 'Пояснюю двофотонну дисипацію і чому втрата фотона спричиняє лише фазову помилку.') },
+    { id: 'zeno', steps: ['zeno', 'buffer'], text: tr('Vysvetlím Zenónovo hradlo a pamäťový + bufferový rezonátor.', 'I can explain the Zeno gate and the memory + buffer resonators.', 'Пояснюю гейт Зенона та резонатори пам’яті й буфера.') },
+  ],
 };
 
 // jazykové pasce na konci levelu → cieľ (index otázky v TRAPS[n], resp. TRAPS_HARD[n])

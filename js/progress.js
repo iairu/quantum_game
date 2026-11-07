@@ -347,7 +347,7 @@ const Progress = {
     const title = L ? L.title : tr('Level', 'Level', 'Рівень');
     this.celebrate({
       kind: 'level', icon: stars >= 3 ? '🏆' : '🌟', title: tr('Level dokončený!', 'Level complete!', 'Рівень завершено!'),
-      sub: `${dnum(n)} · ${title}`, stars: stars || 0, xp: gain,
+      sub: `${L ? dnum(L) : n} · ${title}`, stars: stars || 0, xp: gain,
     });
   },
 

@@ -463,6 +463,93 @@ const EQ_BLANKS = {
       { c: '13.intro.0', eq: 'P = ½(1 + r · ⟦0⟧)', blanks: [['n', 'r', 'σ', '|r|']] },
     ],
   },
+  // ---------- 20 · Dielňa previazanosti ----------
+  20: {
+    product: [
+      { c: '20.product.0', eq: "(α|0⟩+β|1⟩)(γ|0⟩+δ|1⟩) ⇔ ad = ⟦0⟧", blanks: [["bc", "ab", "cd", "0"]], box: 1, src: '7' },
+    ],
+    cnot: [
+      { c: '20.cnot.0', eq: "CNOT (H ⊗ I)|00⟩ = ⟦0⟧", blanks: [["|Φ⁺⟩", "|Ψ⁺⟩", "|++⟩", "|Φ⁻⟩"]], src: '7' },
+    ],
+    schmidt: [
+      { c: '20.schmidt.0', eq: "|ψ⟩ = Σᵢ ⟦0⟧ |uᵢ⟩|vᵢ⟩", blanks: [["√λᵢ", "λᵢ", "λᵢ²", "1/λᵢ"]], box: 1, src: '7' },
+      { c: '20.schmidt.1', eq: "E = −Σᵢ λᵢ ⟦0⟧", blanks: [["log₂ λᵢ", "λᵢ", "e<sup>λᵢ</sup>", "1/λᵢ"]], hard: 1, src: '7' },
+    ],
+    relation: [
+      { c: '20.relation.0', eq: "ρ<sub>A</sub> = Tr<sub>B</sub> |Φ⁺⟩⟨Φ⁺| = ⟦0⟧", blanks: [["I/2", "|0⟩⟨0|", "|Φ⁺⟩⟨Φ⁺|", "0"]], src: '7' },
+    ],
+    protocols: [
+      { c: '20.protocols.0', eq: "1 ebit + ⟦0⟧ klasické bity → 1 qubit", blanks: [["2", "1", "0", "4"]], src: '7' },
+    ],
+  },
+  // ---------- 21 · Bellov stav na SpinQ ----------
+  21: {
+    matrix: [
+      { c: '21.matrix.0', eq: "⟨XX⟩ = 1, ⟨YY⟩ = ⟦0⟧, ⟨ZZ⟩ = 1", blanks: [["−1", "1", "0", "i"]], src: '7' },
+    ],
+    pulses: [
+      { c: '21.pulses.0', eq: "τ = 1/(⟦0⟧)", blanks: [["2J", "J", "4J", "πJ"]], box: 1, src: '7' },
+    ],
+    pps: [
+      { c: '21.pps.0', eq: "ρ = (1 − ε) ⟦0⟧ + ε|ψ⟩⟨ψ|", blanks: [["I/4", "I/2", "|00⟩⟨00|", "0"]], box: 1, src: '7' },
+    ],
+    tomo: [
+      { c: '21.tomo.0', eq: "# parametrov ρ (2 qubity) = 4² − ⟦0⟧", blanks: [["1", "0", "2", "4"]], src: '7' },
+      { c: '21.tomo.1', eq: "φ = −2π J ⟦0⟧", blanks: [["τ", "1/τ", "τ²", "2τ"]], hard: 1, src: '7' },
+    ],
+    spin: [
+      { c: '21.spin.0', eq: "|Ψ⁻⟩ = (|↑↓⟩ ⟦0⟧ |↓↑⟩)/√2", blanks: [["−", "+", "·", "⊗"]], src: '7' },
+    ],
+  },
+  // ---------- 22 · Orákulum fáz ----------
+  22: {
+    interfere: [
+      { c: '22.interfere.0', eq: "P(0) = ⟦0⟧(ϕ/2)", blanks: [["cos²", "sin²", "cos", "tan²"]], box: 1, src: '7' },
+    ],
+    oracle: [
+      { c: '22.oracle.0', eq: "U<sub>f</sub> |x⟩|y⟩ = |x⟩|y ⟦0⟧ f(x)⟩", blanks: [["⊕", "·", "+", "⊗"]], box: 1, src: '7' },
+    ],
+    kickback: [
+      { c: '22.kickback.0', eq: "U<sub>f</sub> |x⟩|−⟩ = ⟦0⟧ |x⟩|−⟩", blanks: [["(−1)<sup>f(x)</sup>", "f(x)", "i<sup>f(x)</sup>", "1"]], box: 1, src: '7' },
+    ],
+    deutsch: [
+      { c: '22.deutsch.0', eq: "výsledok = f(0) ⟦0⟧ f(1)", blanks: [["⊕", "·", "+", "∧"]], src: '7' },
+    ],
+  },
+  // ---------- 23 · Walshova–Hadamardova dielňa ----------
+  23: {
+    intro: [
+      { c: '23.intro.0', eq: "H<sup>⊗n</sup>|x⟩ = 2<sup>−n/2</sup> Σ<sub>y</sub> ⟦0⟧ |y⟩", blanks: [["(−1)<sup>x⋅y</sup>", "(−1)<sup>x+y</sup>", "e<sup>ixy</sup>", "x⋅y"]], box: 1, src: '7' },
+    ],
+    dj: [
+      { c: '23.dj.0', eq: "A<sub>f</sub>(0…0) = 2<sup>−n</sup> Σ<sub>x</sub> ⟦0⟧", blanks: [["(−1)<sup>f(x)</sup>", "f(x)", "(−1)<sup>x</sup>", "1"]], src: '7' },
+    ],
+    bv: [
+      { c: '23.bv.0', eq: "f(x) = s ⟦0⟧ x mod 2", blanks: [["⋅", "+", "⊕", "×"]], box: 1, src: '7' },
+    ],
+    cost: [
+      { c: '23.cost.0', eq: "klasicky (deterministicky, DJ): ⟦0⟧ dotazov", blanks: [["2<sup>n−1</sup>+1", "n", "1", "2ⁿ"]], hard: 1, src: '7' },
+    ],
+  },
+  // ---------- 24 · Mačací qubit ----------
+  24: {
+    blobs: [
+      { c: '24.blobs.0', eq: "⟨α|−α⟩ = ⟦0⟧", blanks: [["e<sup>−2|α|²</sup>", "e<sup>−|α|²</sup>", "0", "e<sup>2|α|²</sup>"]], box: 1, src: '8' },
+      { c: '24.blobs.1', eq: "Γ<sub>bit</sub> ∝ ⟦0⟧", blanks: [["e<sup>−2n̄</sup>", "n̄", "1/n̄", "n̄²"]], src: '8' },
+    ],
+    lindblad: [
+      { c: '24.lindblad.0', eq: "dρ/dt = κ₂ D[⟦0⟧]ρ + κ₁ D[a]ρ", blanks: [["a² − α²", "a − α", "a†a", "a²"]], box: 1, src: '8' },
+    ],
+    bias: [
+      { c: '24.bias.0', eq: "a|C±⟩ ∝ ⟦0⟧", blanks: [["|C∓⟩", "|C±⟩", "|α⟩", "0"]], src: '8' },
+    ],
+    zeno: [
+      { c: '24.zeno.0', eq: "θ = ⟦0⟧ εαt", blanks: [["4", "2", "1", "8"]], src: '8' },
+    ],
+    buffer: [
+      { c: '24.buffer.0', eq: "κ₂ ≈ 4|g₂|² / ⟦0⟧", blanks: [["κ<sub>b</sub>", "κ₁", "g₂", "ω<sub>b</sub>"]], hard: 1, src: '8' },
+    ],
+  },
 };
 
 // výrazy z prednášok, ktoré hra v danom kroku neukazuje (diferenciálne rovnice, rady, Hermitove polynómy, spojité bázy,

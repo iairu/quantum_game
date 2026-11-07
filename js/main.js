@@ -523,6 +523,11 @@ const LEVEL_TIPS = tr({
   17: 'Korekcia chýb: bit-flip a phase-flip kód, 3-qubitový a Shorov 9-qubitový kód, syndrómové meranie bez kolapsu dát, prah chybovosti.',
   18: 'Chémia NMR počítača: chemický posun, J-väzba cez kovalentné väzby, molekula ako register spinov, prečo sú jadrá rozlíšiteľné qubity.',
   19: 'Majoranove fermióny: topologické qubity, nulové módy na koncoch drôtu, pletenie (braiding) ako hradlo, neabelovské anyóny, odolnosť voči chybám.',
+  20: 'Previazanosť: produktový vs. previazaný stav, CNOT vytvorí Bellov pár, Schmidtov rozklad, čiastočná stopa, entropia previazanosti, no-signalling, teleportácia, superhusté kódovanie.',
+  21: 'Bellov stav na SpinQ: matica hustoty 4×4, Pauliho korelácie, pulzná sekvencia s J-väzbou, pseudo-čistý stav, 15-parametrová tomografia, triplet a singlet.',
+  22: 'Fázové orákulum: interferencia v Machovom–Zehnderovom interferometri, |±⟩, fázový spätný ráz, globálna vs. relatívna fáza, Deutschov algoritmus pre f₀–f₃.',
+  23: 'Walsh–Hadamard: H<sup>⊗n</sup> a (−1)<sup>x⋅y</sup>, Deutsch–Jozsa, Bernstein–Vazirani (1 dotaz namiesto n), zložitosť dotazov, tvarované pulzy na hardvéri.',
+  24: 'Mačacie qubity: |±α⟩, prekryv e<sup>−2|α|²</sup>, dvojfotónová disipácia, biasovaný šum, mačacie stavy C±, Zenónov jav a hradlo, pamäť + buffer, Shor pre RSA-2048.',
 }, {
   1: 'Complex numbers: amplitude as a clock hand, phase, i² = −1, interference.',
   2: 'Spin measurement: two spots, ±ħ/2, the measurement basis is part of the question.',
@@ -542,6 +547,11 @@ const LEVEL_TIPS = tr({
   17: 'Error correction: bit-flip and phase-flip codes, the 3-qubit and Shor 9-qubit codes, syndrome measurement without collapsing the data, the error threshold.',
   18: 'The chemistry of an NMR computer: chemical shift, J-coupling through covalent bonds, a molecule as a register of spins, why the nuclei are addressable qubits.',
   19: 'Majorana fermions: topological qubits, zero modes at the ends of a wire, braiding as a gate, non-Abelian anyons, built-in fault tolerance.',
+  20: 'Entanglement: product vs. entangled states, CNOT makes a Bell pair, Schmidt decomposition, partial trace, entanglement entropy, no-signalling, teleportation, superdense coding.',
+  21: 'Bell state on SpinQ: the 4×4 density matrix, Pauli correlations, a pulse sequence with J-coupling, pseudo-pure states, 15-parameter tomography, triplet and singlet.',
+  22: 'Phase oracle: interference in a Mach–Zehnder interferometer, |±⟩, phase kickback, global vs. relative phase, Deutsch’s algorithm for f₀–f₃.',
+  23: 'Walsh–Hadamard: H<sup>⊗n</sup> and (−1)<sup>x⋅y</sup>, Deutsch–Jozsa, Bernstein–Vazirani (1 query instead of n), query complexity, shaped pulses on hardware.',
+  24: 'Cat qubits: |±α⟩, overlap e<sup>−2|α|²</sup>, two-photon dissipation, biased noise, cat states C±, the Zeno effect and gate, memory + buffer, Shor for RSA-2048.',
 }, {
   1: 'Комплексні числа: амплітуда як стрілка годинника, фаза, i² = −1, інтерференція.',
   2: 'Вимірювання спіну: дві плями, ±ħ/2, базис вимірювання — частина питання.',
@@ -561,6 +571,11 @@ const LEVEL_TIPS = tr({
   17: 'Корекція помилок: коди bit-flip і phase-flip, 3-кубітний і 9-кубітний код Шора, синдромне вимірювання без колапсу даних, поріг помилок.',
   18: 'Хімія ЯМР-комп’ютера: хімічний зсув, J-зв’язок через ковалентні зв’язки, молекула як регістр спінів, чому ядра — адресовні кубіти.',
   19: 'Ферміони Майорани: топологічні кубіти, нульові моди на кінцях дроту, плетіння (braiding) як гейт, неабелеві аніони, стійкість до помилок.',
+  20: 'Заплутаність: добутковий vs. заплутаний стан, CNOT створює пару Белла, розклад Шмідта, часткова слідова операція, ентропія заплутаності, no-signalling, телепортація, надщільне кодування.',
+  21: 'Стан Белла на SpinQ: матриця густини 4×4, кореляції Паулі, імпульсна послідовність із J-зв’язком, псевдочистий стан, 15-параметрова томографія, триплет і синглет.',
+  22: 'Фазовий оракул: інтерференція в інтерферометрі Маха–Цендера, |±⟩, фазовий відкат, глобальна vs. відносна фаза, алгоритм Дойча для f₀–f₃.',
+  23: 'Волш–Адамар: H<sup>⊗n</sup> і (−1)<sup>x⋅y</sup>, Дойч–Йожа, Бернштейн–Вазірані (1 запит замість n), складність запитів, профільовані імпульси на обладнанні.',
+  24: 'Котячі кубіти: |±α⟩, перекриття e<sup>−2|α|²</sup>, двофотонна дисипація, зміщений шум, котячі стани C±, ефект і гейт Зенона, пам’ять + буфер, Шор для RSA-2048.',
 });
 
 // obsah levelu na portáli: zoznam úloh v bubline (zobrazí sa pri prejdení myšou)
@@ -584,6 +599,11 @@ const PORTAL_CONTENTS = tr({
   17: ['bit-flip kód a opakovanie', 'phase-flip kód v báze ±', 'syndrómové meranie bez kolapsu', 'Shorov 9-qubitový kód'],
   18: ['chemický posun jadier', 'J-väzba cez väzby molekuly', 'molekula ako register qubitov', 'spektrum = adresy qubitov'],
   19: ['nulové módy na koncoch drôtu', 'topologický qubit z dvoch Majoran', 'pletenie (braiding) ako hradlo', 'neabelovské anyóny'],
+  20: ['produktový vs. previazaný stav', 'CNOT a Bellov pár', 'Schmidtov posuvník λ₁', 'teleportácia a superhusté kódovanie'],
+  21: ['matica hustoty 4×4', 'pulzy a J-väzba', 'pseudo-čistý stav', 'tomografia s oneskorením τ'],
+  22: ['Machov–Zehnderov interferometer', 'fázové orákulum', 'fázový spätný ráz', 'Deutsch pre f₀–f₃'],
+  23: ['H<sup>⊗n</sup> a znamienka (−1)<sup>x⋅y</sup>', 'Deutsch–Jozsa', 'nájdi skryté s jedným dotazom', 'tvarované pulzy'],
+  24: ['dve mačky vo fázovom priestore', 'dvojfotónová disipácia', 'Zenónovo hradlo', 'pamäť + buffer'],
 }, {
   1: ['the amplitude hand and its phase', 'multiplying by i = a 90° turn', 'interference of two paths'],
   2: ['two silver spots', 'measurement sequences Z → X → Z', 'predicting cos²(θ/2)'],
@@ -604,6 +624,11 @@ const PORTAL_CONTENTS = tr({
   17: ['the bit-flip code and repetition', 'the phase-flip code in the ± basis', 'syndrome measurement without collapse', 'the Shor 9-qubit code'],
   18: ['the chemical shift of nuclei', 'J-coupling through the molecule’s bonds', 'a molecule as a register of qubits', 'the spectrum = qubit addresses'],
   19: ['zero modes at the ends of a wire', 'a topological qubit from two Majoranas', 'braiding as a gate', 'non-Abelian anyons'],
+  20: ['product vs. entangled states', 'CNOT and a Bell pair', 'the Schmidt slider λ₁', 'teleportation and superdense coding'],
+  21: ['the 4×4 density matrix', 'pulses and J-coupling', 'a pseudo-pure state', 'tomography with a delay τ'],
+  22: ['a Mach–Zehnder interferometer', 'the phase oracle', 'phase kickback', 'Deutsch for f₀–f₃'],
+  23: ['H<sup>⊗n</sup> and the signs (−1)<sup>x⋅y</sup>', 'Deutsch–Jozsa', 'find the hidden s in one query', 'shaped pulses'],
+  24: ['two cats in phase space', 'two-photon dissipation', 'the Zeno gate', 'memory + buffer'],
 }, {
   1: ['стрілка амплітуди та її фаза', 'множення на i = поворот на 90°', 'інтерференція двох шляхів'],
   2: ['дві плями срібла', 'послідовності вимірювань Z → X → Z', 'передбачення cos²(θ/2)'],
@@ -624,6 +649,11 @@ const PORTAL_CONTENTS = tr({
   17: ['код bit-flip і повторення', 'код phase-flip у базисі ±', 'синдромне вимірювання без колапсу', '9-кубітний код Шора'],
   18: ['хімічний зсув ядер', 'J-зв’язок через зв’язки молекули', 'молекула як регістр кубітів', 'спектр = адреси кубітів'],
   19: ['нульові моди на кінцях дроту', 'топологічний кубіт із двох Майоран', 'плетіння (braiding) як гейт', 'неабелеві аніони'],
+  20: ['добутковий vs. заплутаний стан', 'CNOT і пара Белла', 'повзунок Шмідта λ₁', 'телепортація й надщільне кодування'],
+  21: ['матриця густини 4×4', 'імпульси та J-зв’язок', 'псевдочистий стан', 'томографія із затримкою τ'],
+  22: ['інтерферометр Маха–Цендера', 'фазовий оракул', 'фазовий відкат', 'Дойч для f₀–f₃'],
+  23: ['H<sup>⊗n</sup> і знаки (−1)<sup>x⋅y</sup>', 'Дойч–Йожа', 'знайди приховане s одним запитом', 'профільовані імпульси'],
+  24: ['два коти у фазовому просторі', 'двофотонна дисипація', 'гейт Зенона', 'пам’ять + буфер'],
 });
 // bublina portálu: 🎯 čo budeš vedieť (ciele so stavom zvládnutia) a zoznam úloh
 const portalList = (n) => (OBJECTIVES[n] ? `<div class="pgoals"><b>${tr('🎯 Budeš vedieť:', '🎯 You will be able to:', '🎯 Ти вмітимеш:')}</b>${Learn.goalsHtml(n)}</div>` : '')
@@ -746,6 +776,43 @@ const PortalArt = {
           r.draw('circle', M4.orient(p, d, 0.42 + 0.22 * pulse), g([1, 0.7, 0.3]), { alpha: 0.3, emissive: 0.5, unlit: 1 });
         }
         r.draw('cone', M4.trs(V3.add(P(0.9, 0), [0, 0.18, 0]), 0, [0.26, 1.2, 0.26]), g([1, 0.8, 0.4]), { alpha: open ? 0.14 : 0.06, emissive: 0.7, unlit: 1 });
+        break;
+      }
+      case 20: { // dielňa previazanosti: dva qubity spojené pulzujúcim pásom
+        const pulse = 0.5 + 0.5 * Math.sin(t * 2);
+        const a = P(-0.6, 0), b = P(0.6, 0);
+        r.sphere(a, 0.26, g([0.95, 0.5, 0.85]), { emissive: open ? 0.3 : 0 });
+        r.sphere(b, 0.26, g([0.5, 0.75, 1]), { emissive: open ? 0.3 : 0 });
+        r.rod(a, b, g([1, 0.85, 0.95]), 0.03 + 0.03 * pulse, { emissive: open ? 0.4 + 0.4 * pulse : 0 });
+        for (const k of [-1, 1]) r.arrow(P(k * 0.6, 0.1), P(k * 0.6, 0.48), g([1, 0.85, 0.3]), 0.026, E);
+        break;
+      }
+      case 21: { // SpinQ Bell: mriežka 4×4 matice hustoty, rohy (00/11) svietia
+        for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
+          const corner = (i === 0 || i === 3) && (j === 0 || j === 3), h = corner ? 0.45 + 0.08 * Math.sin(t * 2 + i + j) : 0.04;
+          r.draw('box', M4.trs(P(-0.45 + j * 0.3, -0.75 + h / 2 + i * 0.32), yaw, [0.2, h, 0.08]), g(corner ? [0.55, 0.9, 0.5] : [0.35, 0.4, 0.45]), { emissive: open && corner ? 0.5 : 0 });
+        }
+        break;
+      }
+      case 22: { // orákulum fáz: kosoštvorec interferometra so sklenenou guľou v strede
+        const pts = [P(-0.8, 0), P(0, 0.6), P(0.8, 0), P(0, -0.6)];
+        for (let i = 0; i < 4; i++) r.rod(pts[i], pts[(i + 1) % 4], g([0.65, 0.4, 0.95]), 0.025, E);
+        r.sphere(c, 0.22, g([0.75, 0.55, 1]), { alpha: 0.5, emissive: open ? 0.5 + 0.3 * Math.sin(t * 2) : 0 });
+        const s = (t * 0.5) % 1, k = Math.floor(s * 2), f = (s * 2) % 1;
+        for (const side of [1, 3]) r.sphere(V3.lerp(k ? pts[side] : pts[0], k ? pts[2] : pts[side], f), 0.07, g([1, 0.9, 0.5]), E);
+        break;
+      }
+      case 23: { // Walsh–Hadamard: 8 stĺpcov so znamienkami ±
+        for (let i = 0; i < 8; i++) {
+          const sgn = ((Math.floor(t * 0.7) >> (i % 3)) ^ i) & 1 ? -1 : 1, h = 0.32;
+          r.draw('box', M4.trs(P(-0.84 + i * 0.24, sgn * h / 2), yaw, [0.14, h, 0.1]), g(sgn > 0 ? [1, 0.7, 0.2] : [0.3, 0.6, 1]), { emissive: open ? 0.3 : 0 });
+        }
+        r.rod(P(-1, 0), P(1, 0), g([0.7, 0.7, 0.75]), 0.012, E);
+        break;
+      }
+      case 24: { // mačací qubit: dva obláčiky ±α vo fázovom priestore a prúžky medzi nimi
+        for (const s of [-1, 1]) for (let k = 0; k < 3; k++) r.sphere(P(s * 0.6, 0), 0.12 + k * 0.1, g(s > 0 ? [0.4, 0.75, 1] : [1, 0.55, 0.45]), { alpha: open ? 0.5 - k * 0.14 : 0.2, emissive: open ? 0.4 : 0 });
+        for (let k = -2; k <= 2; k++) { const on = Math.cos(k * Math.PI / 2 + t * 2) > 0; r.draw('box', M4.trs(P(0, k * 0.16), yaw, [0.06, 0.06, 0.24]), g(on ? [0.95, 0.85, 0.55] : [0.35, 0.33, 0.3]), { emissive: open && on ? 0.6 : 0 }); }
         break;
       }
       default: break;

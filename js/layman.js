@@ -321,6 +321,11 @@ const LAYMAN_LEVEL_TIPS = tr({
   17: 'Ako qubit ochrániť pred chybami: rozložíme jeden qubit do viacerých a chybu zbadáme bez pokazenia dát.',
   18: 'Prečo je molekula malý kvantový počítač: každé jadro v nej má inú „rádiovú adresu“.',
   19: 'Exotické častice na koncoch drôtu, ktoré si „pamätajú“ poradie — a tým samy opravujú chyby.',
+  20: 'Dve častice, ktoré sa správajú ako jeden celok — a čo sa s nimi dá (a nedá) poslať.',
+  21: 'Ako sa skutočne vyrobí a odfotí previazaný stav na malom NMR počítači.',
+  22: 'Čierna skrinka, ktorá odpoveď schová do znamienka — a interferencia ju prezradí.',
+  23: 'Jedna otázka namiesto mnohých: kvantový trik na odhalenie skrytého hesla.',
+  24: 'Qubit zo svetla v krabici: prostredie ho namiesto ničenia stráži.',
 }, {
   1: 'Arrows on answers: length = chance, direction = timing. How arrows team up or cancel.',
   2: 'Atoms as tiny magnets: always just “up” or “down” — the first qubit.',
@@ -340,6 +345,11 @@ const LAYMAN_LEVEL_TIPS = tr({
   17: 'How to protect a qubit from errors: spread one qubit across several and spot a mistake without spoiling the data.',
   18: 'Why a molecule is a tiny quantum computer: each nucleus in it has its own “radio address”.',
   19: 'Exotic particles at the ends of a wire that “remember” their order — and so fix their own errors.',
+  20: 'Two particles that behave as one whole — and what can (and cannot) be sent with them.',
+  21: 'How an entangled state is really made and photographed on a small NMR computer.',
+  22: 'A black box that hides its answer in a sign — and interference gives it away.',
+  23: 'One question instead of many: a quantum trick to uncover a hidden password.',
+  24: 'A qubit made of light in a box: the environment guards it instead of destroying it.',
 }, {
   1: 'Стрілки на відповідях: довжина = шанс, напрямок = час. Як стрілки об’єднуються або гасяться.',
   2: 'Атоми як крихітні магніти: завжди лише «угору» або «вниз» — перший кубіт.',
@@ -359,6 +369,11 @@ const LAYMAN_LEVEL_TIPS = tr({
   17: 'Як захистити кубіт від помилок: розподілимо один кубіт на кілька й помітимо помилку, не псуючи даних.',
   18: 'Чому молекула — крихітний квантовий комп’ютер: кожне ядро в ній має власну «радіоадресу».',
   19: 'Екзотичні частинки на кінцях дроту, що «пам’ятають» свій порядок — і так самі виправляють помилки.',
+  20: 'Дві частинки, що поводяться як одне ціле — і що з ними можна (і не можна) передати.',
+  21: 'Як насправді створюють і «фотографують» заплутаний стан на малому ЯМР-комп’ютері.',
+  22: 'Чорна скринька, що ховає відповідь у знак — а інтерференція її видає.',
+  23: 'Одне питання замість багатьох: квантовий трюк, що розкриває прихований пароль.',
+  24: 'Кубіт зі світла в коробці: середовище стереже його замість того, щоб руйнувати.',
 });
 
 // úvod sprievodkyne bežnou rečou (zobrazí sa pri prvom stretnutí v laickej obťažnosti alebo po jej zapnutí)
